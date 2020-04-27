@@ -1,57 +1,68 @@
 #ifndef __COMMAND_H__
 #define __COMMAND_H__
 
-#include "asmType.h"
+#include "..\asm\asmType.h"
+#include "..\asm\asmTemplate.h"
+
+#include "..\asm\asmMov.h"
+#include "..\asm\asmAdd.h"
+#include "..\asm\asmSub.h"
+#include "..\asm\asmCall.h"
+#include "..\asm\asmNop.h"
 
 class Command
 {
-public:
-	enum class Cmd
-	{
-		MOV,
-		CALL,
-		SUB,
-		ADD,
-	};
-	
-	Command(Cmd cmd, Operand* op1 = nullptr, Operand* op2 = nullptr): m_cmd(cmd), m_op1(op1), m_op2(op2) {}
+public:	
+	Command(ASM_CMD cmd, Operand* op1 = nullptr, Operand* op2 = nullptr, Operand* op3 = nullptr, Operand* op4 = nullptr) {
+		if (cmd == ASM_CMD::MOV) {
+			m_cmd = new AsmMov(op1, op2);
+		} else if (cmd == ASM_CMD::NOP) {		
+			m_cmd = (op1 == nullptr) ? (new AsmNop()) : (new AsmNop(op1));
+		} else if (cmd == ASM_CMD::SUB) {		
+			m_cmd = new AsmSub(op1, op2);
+		} else if (cmd == ASM_CMD::ADD) {		
+			m_cmd = new AsmAdd(op1, op2);
+		} else if (cmd == ASM_CMD::CALL) {		
+			m_cmd = new AsmCall(op1);
+		} else {
+			op1 = nullptr;
+			op2 = op1;
+			op3 = op2;
+			op4 = op3;
+			op1 = op4;
+			m_cmd = nullptr;			
+		}
+	}
 
 	~Command()
 	{
-		if (m_op1 != nullptr)
-			delete m_op1;
-		if (m_op2 != nullptr)
-			delete m_op2;
+		if (m_cmd != nullptr) 
+			delete m_cmd;
+
 	}
 	
 	int size()
 	{		
-		if (m_cmd == Cmd::MOV) {
-			if ((m_op1->type == Type::Pointer) && (m_op2->type == Type::i32))
-				return 2 + 4 + 4;
-			else if ((m_op1->type == Type::Reg) && (m_op2->type == Type::Pointer))
-				return 2 + 1 + 4;
-		}		
-		return 0;
+		return (m_cmd != nullptr)
+			? m_cmd->reserve()
+			: 0;
 	}
 	
-	void write(std::ofstream& f, int offset)
+	int write(std::ofstream& f, int offset)
 	{
-		if (m_cmd == Cmd::MOV) {
-			if ((m_op1->type == Type::Pointer) && (m_op2->type == Type::i32))
-			{
-				f.write("\xC7\x05", 2);
-				DWORD o1 = ((Variable*)m_op1->data)->offset() - (offset + size());
-				f.write((char*) &o1, sizeof(o1));
-				f.write((char*) &m_op2->data, m_op2->len);
-			}
-		}
+		return (m_cmd != nullptr)
+			? m_cmd->write(f, offset)
+			: 0;
 	}
 	
-private:
-	Cmd m_cmd;
-	Operand* m_op1;
-	Operand* m_op2;
+	ASM_CMD cmd()
+	{
+		return m_cmd->cmd();
+	}
+	
+	
+protected:
+	AsmTemplate* m_cmd;
 };
 
 #endif

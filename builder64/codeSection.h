@@ -11,6 +11,7 @@ public:
 		m_header.Characteristics = IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ;
 		
 	}
+	
 	~CodeSection() {
 		for (auto it=m_commands.begin(); it!=m_commands.end(); ++it)
 		{
@@ -21,10 +22,12 @@ public:
 	
 	void add(Command* cmd)
 	{
-		m_rawSize += cmd->size();
-		m_vaSize += cmd->size();
+		int sz = cmd->size();
+		m_rawSize += sz;
+		m_vaSize += sz;
 		m_commands.push_back(cmd);
 	}
+	
 	
 	void prepare() override
 	{
@@ -32,8 +35,9 @@ public:
 		m_vaSize = 0;
 		for (auto it=m_commands.begin(); it!=m_commands.end(); ++it)
 		{
-			m_rawSize += (*it)->size();
-			m_vaSize += (*it)->size();
+			int rs = (*it)->size();
+			m_rawSize += rs;
+			m_vaSize += rs;
 		}
 	}
 	
@@ -41,9 +45,16 @@ public:
 	{
 		int offset = 0;
 		for (auto it=m_commands.begin(); it!=m_commands.end(); ++it)
-		{
-			(*it)->write(f, m_header.VirtualAddress + offset);
-			offset += (*it)->size();
+		{			
+			auto start = f.tellp();
+			int sz = (*it)->write(f, m_header.VirtualAddress + offset);
+			auto stop = f.tellp();
+			if ((sz != (*it)->size()) || (sz != (stop-start))) {
+				std::cout <<  "Alert: " << (*it)->cmd() << std::endl;
+			}
+			//std::cout << (*it)->cmd() << "\t" << sz << std::endl;
+			std::cout << (*it)->cmd() << "\t" << "offset: " << offset << "\t+\t" << sz << std::endl;
+			offset += sz;
 		}
 		
 		{			
@@ -52,6 +63,13 @@ public:
 			memset(tmp, 0, sz);
 			f.write(tmp, sz);
 		}
+	}
+	
+	void preLoad(IMAGE_NT_HEADERS64* header) override
+	{
+		header->OptionalHeader.SizeOfCode = this->vaSize();
+		header->OptionalHeader.BaseOfCode = this->header()->VirtualAddress;
+		header->OptionalHeader.AddressOfEntryPoint = this->header()->VirtualAddress;
 	}
 	
 

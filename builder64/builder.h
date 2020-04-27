@@ -162,6 +162,7 @@ private:
 		
 		int offset = header->OptionalHeader.SizeOfHeaders;
 		int VA = 0x1000;
+				
 		for (auto it=m_sections.begin(); it != m_sections.end(); ++it)
 		{
 			auto head = (*it)->header();
@@ -171,9 +172,12 @@ private:
 			head->VirtualAddress = VA;
 			head->Misc.VirtualSize = (*it)->vaSize();
 			
+			(*it)->setImageBase(header->OptionalHeader.ImageBase);
+			
 //			(*it)->setVA(VA);
 			(*it)->recalc();
 			
+			(*it)->preLoad(header);
 			// f.write((char*)(*it)->header(), sizeof(IMAGE_SECTION_HEADER));			
 			
 //			std::cout <<  (*it)->name() << ":\t"<< (*it)->size() << std::endl;
@@ -184,7 +188,14 @@ private:
 			offset += ALIGN_UP( (*it)->rawSize(), header->OptionalHeader.FileAlignment);
 		}
 		
-		for (auto it=m_sections.begin(); it != m_sections.end(); ++it)
+		header->OptionalHeader.SizeOfImage = VA;
+		
+		header->OptionalHeader.SizeOfStackReserve = 0x1000;
+		header->OptionalHeader.SizeOfStackCommit = 0x1000;
+		header->OptionalHeader.SizeOfHeapReserve = 0x10000;
+		header->OptionalHeader.SizeOfHeapCommit = 0;
+		
+/*		for (auto it=m_sections.begin(); it != m_sections.end(); ++it)
 		{
 			int dd = (*it)->dataDirectory();
 			if ((dd > 0) && (dd < IMAGE_NUMBEROF_DIRECTORY_ENTRIES)) {				
@@ -192,6 +203,7 @@ private:
 				header->OptionalHeader.DataDirectory[dd].Size = (*it)->vaSize();
 			}
 		}
+	*/	
 		
 		f.write((char*)m_pe_header, sizeof(IMAGE_NT_HEADERS64));
 		

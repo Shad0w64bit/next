@@ -38,8 +38,12 @@ public:
 	
 	int offset() { return m_offset; }
 	void setOffset(int offset) { m_offset = offset; }
+	QWORD vaOffset() {		
+		return m_va + m_offset;
+	}
 	
 	int size() { return m_size; }
+	void setVA(QWORD va) { m_va = va; }
 
 private:
 	Type m_type;
@@ -47,6 +51,7 @@ private:
 	char* m_value;
 	
 	int m_offset;
+	QWORD m_va;
 	int m_size;
 };
 
@@ -67,29 +72,37 @@ public:
 		m_data.clear();
 	}
 	
-	bool add(Data::Type type, const char* name, const char* val) 
+	Data* add(Data::Type type, const char* name, const char* val) 
 	{
 		for (auto it=m_data.begin(); it!=m_data.end(); ++it)
 		{
 			if (strcmp(name, (*it)->name()) == 0)
-				return false;
+				return nullptr;
 		}
 		m_data.push_back( new Data(type, name, val) );
 
 //		m_rawSize += strlen(val) + 1;
-		return true;
+		return m_data.back();
 	}
 	
 	void prepare() override
 	{
 		m_rawSize = m_vaSize = 0;
 		for (auto it=m_data.begin(); it!=m_data.end(); ++it)
-		{
+		{			
 			(*it)->setOffset(m_rawSize);
 			m_rawSize += (*it)->size();
 			m_vaSize += (*it)->size();
 		}
 		
+	}
+	
+	void recalc() override
+	{
+		for (auto it=m_data.begin(); it!=m_data.end(); ++it)
+		{
+			(*it)->setVA(m_header.VirtualAddress + m_imageBase);
+		}
 	}
 	
 	void write(std::ofstream& f, int align) override
@@ -106,6 +119,11 @@ public:
 			f.write(tmp, sz);
 		}
 		
+	}
+	
+	void preLoad(IMAGE_NT_HEADERS64* header) override
+	{
+		header->OptionalHeader.SizeOfInitializedData = this->vaSize();
 	}
 
 private:

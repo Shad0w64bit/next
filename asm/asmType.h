@@ -6,8 +6,12 @@
 enum class Type
 {
 	Pointer,
-	Reg,
-	i32,
+	Variable,
+	Register,
+	Constant,
+	RData,
+	Bss,
+	Library,
 };
 
 enum REX {
@@ -196,18 +200,27 @@ struct Operand
 {
 	Type type;
 	int len;
-	union {
-		char* data;
-		DWORD val;
-	};
+	QWORD data; // also may store a pointer
 };
 
-enum class ASM
+enum class ASM_CMD
 {
-	Mov,
-	Call,
-	Sub,
-	Add,
+	MOV,
+	CALL,
+	SUB,
+	ADD,
+	NOP,
 };
+
+std::ostream& operator<<(std::ostream& os, const ASM_CMD& cmd) {
+  static const char* const names[]{
+	"MOV",
+	"CALL",
+	"SUB",
+	"ADD",
+	"NOP",
+  };
+  return os << names[static_cast<int>(cmd)];
+}
 
 #endif

@@ -10,7 +10,8 @@
 #include "builder64\bssSection.h"
 #include "builder64\dataSection.h"
 #include "builder64\codeSection.h"
-#include "builder64\command.h"
+#include "asm\asmType.h"
+//#include "builder64\command.h"
 
 int main()
 {
@@ -31,18 +32,33 @@ int main()
 	builder.addSection(bs);
 	builder.addSection(is);
 	
-	auto flags = bs->add(Variable::Type::i32, "flags");
+	Variable* flags = bs->add(Variable::Type::i32, "flags");
 	
-	ds->add(Data::Type::ConstString, "caption", "Win32 App");
-	ds->add(Data::Type::ConstString, "message", "Hello world!");
+	auto caption = ds->add(Data::Type::ConstString, "caption", "Win32 App");
+	auto msg = ds->add(Data::Type::ConstString, "message", "Hello world!");
 	
 	is->add("KERNEL32.DLL", "ExitProcess");
 	is->add("USER32.DLL", "MessageBoxA");	
 	
-	//cs->add( new Command( Command::Cmd::MOV, new Operand{Type::Pointer, 4, (char*)flags}, new Operand{Type::i32, 4, (char*)0x40} ) );
-	Reg reg;
-	std::cout << (reg.get(RegEnum::EAX))->len << std::endl;
+	auto exit = is->getFunc("KERNEL32.DLL", "ExitProcess");
+	auto msgBox = is->getFunc("USER32.DLL", "MessageBoxA");
 	
+	cs->add( new Command(ASM_CMD::MOV, new Operand{Type::Bss, 4, (QWORD)flags}, new Operand{Type::Constant, 4, 0x40 } ) );
+	cs->add( new Command(ASM_CMD::SUB, new Operand{Type::Register, 4, (QWORD)RegEnum::RSP}, new Operand{Type::Constant, 1, 0x28 } ) );
+	cs->add( new Command(ASM_CMD::MOV, new Operand{Type::Register, 4, (QWORD) RegEnum::RCX}, new Operand{Type::Constant, 4, 0 }) );
+	cs->add( new Command(ASM_CMD::MOV, new Operand{Type::Register, 4, (QWORD) RegEnum::RDX}, new Operand{Type::RData, 4, (QWORD) msg}) );
+	cs->add( new Command(ASM_CMD::MOV, new Operand{Type::Register, 4, (QWORD) RegEnum::R8}, new Operand{Type::RData, 4, (QWORD) caption}) );
+	cs->add( new Command(ASM_CMD::MOV, new Operand{Type::Register, 4, (QWORD) RegEnum::R9}, new Operand{Type::Bss, 4, (QWORD) flags}) );
+	cs->add( new Command(ASM_CMD::CALL, new Operand{Type::Library, 4, (QWORD) msgBox}) );
+	cs->add( new Command(ASM_CMD::MOV, new Operand{Type::Register, 4, (QWORD) RegEnum::RCX}, new Operand{Type::Constant, 4, 0x0 }) );
+	cs->add( new Command(ASM_CMD::CALL, new Operand{Type::Library, 4, (QWORD) exit}) );
+	cs->add( new Command(ASM_CMD::ADD, new Operand{Type::Register, 4, (QWORD)RegEnum::RSP}, new Operand{Type::Constant, 1, 0x28 } ) );
+	
+	//cs->add( new Command(ASM_CMD::NOP, new Operand{Type::Constant, 4, (QWORD) 4}) );
+	
+	//cs->add( new Command( Command::Cmd::MOV, new Operand{Type::Pointer, 4, (char*)flags}, new Operand{Type::i32, 4, (char*)0x40} ) );
+	/*Reg reg;
+	std::cout << (reg.get(RegEnum::EAX))->len << std::endl;*/
 	
 	bs->endUpdate();
 	ds->endUpdate();
@@ -122,9 +138,9 @@ int main()
 	peHeader.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = 0x4000;
 	peHeader.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = 0x200;
 	
-	peHeader.OptionalHeader.SizeOfStackReserve = 1000;
-	peHeader.OptionalHeader.SizeOfStackCommit = 1000;
-	peHeader.OptionalHeader.SizeOfHeapReserve = 10000;
+	peHeader.OptionalHeader.SizeOfStackReserve = 0x1000;
+	peHeader.OptionalHeader.SizeOfStackCommit = 0x1000;
+	peHeader.OptionalHeader.SizeOfHeapReserve = 0x10000;
 	peHeader.OptionalHeader.SizeOfHeapCommit = 0;
 	
 	peHeader.OptionalHeader.SizeOfCode = 0x200;

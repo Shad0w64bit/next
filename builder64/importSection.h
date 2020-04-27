@@ -5,8 +5,6 @@
 
 #include "section.h"
 
-typedef unsigned long long QWORD;
-
 struct Func
 {
 	char* data;
@@ -81,6 +79,30 @@ public:
 		
 	}
 	~ImportSection() {}
+	
+	ImportFunc* getFunc(const char* library, const char* function)
+	{
+		Library* lib = nullptr;		
+		for (auto it=m_libraries.begin(); it!=m_libraries.end(); ++it)
+		{
+			if ( strcmp(library, (*it)->name()) == 0 )
+			{
+				lib = (*it);
+				break;
+			}
+		}
+		
+		if (lib == nullptr) return nullptr;
+		
+		auto functions = lib->getFunctions();
+		
+		for (auto func=functions->begin(); func!=functions->end(); ++func)
+		{
+			if (strcmp( (*func).func.name, function) == 0)
+				return &(*func);
+		}
+		return nullptr;
+	}
 	
 	Library* add(const char* library, const char* function)
 	{
@@ -161,6 +183,7 @@ public:
 			auto functions = (*lib)->getFunctions();
 			for (auto func=functions->begin(); func!=functions->end(); ++func)
 			{
+				(*func).offsetIAT += VA;
 				(*func).INT = (*func).INT + VA;
 				(*func).IAT = (*func).IAT + VA;
 			}
@@ -221,7 +244,14 @@ public:
 		}
 	}
 	
-	int dataDirectory() override { return IMAGE_DIRECTORY_ENTRY_IMPORT; }
+	void preLoad(IMAGE_NT_HEADERS64* header) override
+	{
+		auto head = this->header();
+		header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress = head->VirtualAddress;
+		header->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size = this->vaSize();
+	}
+	
+//	int dataDirectory() override { return IMAGE_DIRECTORY_ENTRY_IMPORT; }
 	
 /*	void DataDirectory(IMAGE_DATA_DIRECTORY& dd)
 	{
