@@ -12,7 +12,7 @@ public:
 	
 	int reserve() override
 	{
-		if ((m_op1->type == Type::Register) && (m_op2->type == Type::Constant)) {
+		if ((m_op1->type == AsmType::Register) && (m_op2->type == AsmType::Constant)) {
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;
 			auto ex = r.get(reg);
@@ -25,7 +25,7 @@ public:
 	{
 		offset = offset + 1; // Nothing
 
-		if ((m_op1->type == Type::Register) && (m_op2->type == Type::Constant)) 
+		if ((m_op1->type == AsmType::Register) && (m_op2->type == AsmType::Constant)) 
 		{
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;

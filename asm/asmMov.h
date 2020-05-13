@@ -3,6 +3,7 @@
 
 #include "asmTemplate.h"
 #include "asmType.h"
+#include "../builder/dataSection.h"
 
 class AsmMov: public AsmTemplate
 {
@@ -13,7 +14,7 @@ public:
 	// Length of command
 	int reserve() override {
 		// Variable < Constant
-		if ((m_op1->type == Type::Bss) && (m_op2->type == Type::Constant))		  
+		if ((m_op1->type == AsmType::Bss) && (m_op2->type == AsmType::Constant))		  
 		{
 			//auto v = (Variable*) m_op1->data;
 			//auto v = (Data*) m_op1->data;
@@ -25,7 +26,7 @@ public:
 		// Register < Constant
 		// Register < Variable
 		// Register < RData
-		if (m_op1->type == Type::Register)
+		if (m_op1->type == AsmType::Register)
 		{
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;
@@ -65,7 +66,7 @@ public:
 	int write(std::ofstream& f, int offset)
 	{
 		auto start = f.tellp();
-		if ((m_op1->type == Type::Bss) && (m_op2->type == Type::Constant))		
+		if ((m_op1->type == AsmType::Bss) && (m_op2->type == AsmType::Constant))		
 		{
 			auto var = (Variable*) m_op1->data;
 			// (offset + reserve())
@@ -84,13 +85,13 @@ public:
 			if (vs == 4) { f.write( (char*) &m_op2->data, 4); }
 		}
 		
-		if (m_op1->type == Type::Register)
+		if (m_op1->type == AsmType::Register)
 		{
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;
 			auto ex = r.get(reg);
 			
-			if (m_op2->type == Type::Constant)
+			if (m_op2->type == AsmType::Constant)
 			{
 				
 				
@@ -108,12 +109,13 @@ public:
 					
 					if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 					op[2] |= ex->data;
-					
+					DWORD i = m_op2->data;
+					std::cout << "Core: " << i << std::endl;
 					f.write((char*)&op, 3);
-					f.write((char*) &m_op2->data, sizeof(DWORD) );
+					f.write((char*) &i, sizeof(DWORD) );
 				}				
 			} 
-			else if (m_op2->type == Type::RData)
+			else if (m_op2->type == AsmType::RData)
 			{
 				Data* d = (Data*)m_op2->data;
 				QWORD off = d->vaOffset();
@@ -134,7 +136,7 @@ public:
 					f.write((char*) &off, sizeof(DWORD) );
 				}
 			}
-			else if (m_op2->type == Type::Bss)
+			else if (m_op2->type == AsmType::Bss)
 			{
 				if (ex->len == 8) {
 					if (ex->rex == REX::Ex) {

@@ -3,7 +3,7 @@
 
 #include <map>
 
-enum class Type
+enum class AsmType
 {
 	Pointer,
 	Variable,
@@ -198,7 +198,7 @@ private:
 
 struct Operand
 {
-	Type type;
+	AsmType type;
 	int len;
 	QWORD data; // also may store a pointer
 };

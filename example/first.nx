@@ -1,0 +1,12 @@
+
+
+
+i32 MessageBoxA(u32 handle, ^str text,  *str caption, u32 type) as MessageBox ['user32.dll'] 
+import func ExitProcess(u32 code) ['kernel32.dll']
+
+func main()
+{
+	i32 a,b,c
+	MessageBox(0, 'Hello world!', 'My App', 64)
+	ExitProcess(0)
+}

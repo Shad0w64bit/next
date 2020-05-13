@@ -1,0 +1,10 @@
+namespace Program
+
+i32 MessageBoxA(u32 handle, ^char text, ^char caption, u32 type) as MessageBox ['user32.dll']
+func ExitProcess(u32 code) ['kernel32.dll']
+
+func main()
+{
+	MessageBox(0, 'Привет Лена!', 'MyApp', 64)
+	ExitProcess(0)
+}

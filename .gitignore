@@ -1,1 +1,4 @@
 **.exe
+**.log
+**.bat
+example\bin\*

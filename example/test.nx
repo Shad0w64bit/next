@@ -1,0 +1,29 @@
+namespace func\for
+
+use func\for 
+use test\lol\
+use test\lol\grep
+use test\lol\func as sd
+
+class cls1 {}
+class cls
+{}
+
+object obj1 {}
+object obj
+{}
+
+typedef i32 qwe
+
+func main
+{
+obj1 o1
+obj o = we
+
+cls1 c1
+cls c = df
+
+qwe q
+qwe q = 2
+
+}

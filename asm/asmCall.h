@@ -3,6 +3,7 @@
 
 #include "asmTemplate.h"
 #include "asmType.h"
+#include "../builder/importSection.h"
 
 class AsmCall: public AsmTemplate
 {
@@ -20,7 +21,7 @@ public:
 		BYTE op[2] = {0xFF, 0x15};
 		f.write((char*) &op, 2);
 		
-		if (m_op1->type == Type::Library) {
+		if (m_op1->type == AsmType::Library) {
 			ImportFunc* lib = (ImportFunc*) m_op1->data;
 			
 			//std::cout << "Cmd: " << offset << "\nReserve: " << reserve() << "\nOffset: " << lib->offsetIAT << std::endl;

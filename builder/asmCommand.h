@@ -10,10 +10,10 @@
 #include "..\asm\asmCall.h"
 #include "..\asm\asmNop.h"
 
-class Command
+class AsmCommand
 {
 public:	
-	Command(ASM_CMD cmd, Operand* op1 = nullptr, Operand* op2 = nullptr, Operand* op3 = nullptr, Operand* op4 = nullptr) {
+	AsmCommand(ASM_CMD cmd, Operand* op1 = nullptr, Operand* op2 = nullptr, Operand* op3 = nullptr, Operand* op4 = nullptr) {
 		if (cmd == ASM_CMD::MOV) {
 			m_cmd = new AsmMov(op1, op2);
 		} else if (cmd == ASM_CMD::NOP) {		
@@ -34,7 +34,7 @@ public:
 		}
 	}
 
-	~Command()
+	~AsmCommand()
 	{
 		if (m_cmd != nullptr) 
 			delete m_cmd;

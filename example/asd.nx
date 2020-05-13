@@ -1,0 +1,34 @@
+
+import func ExitProcess(u32 code) from "kernel32.dll"
+
+import "user32.dll" 
+{
+	i32 MessageBoxA(u32 handle, *str text,  *str caption,  u32 type) as MessageBox
+	i32 MessageBoxW(u32 handle, *wstr text, *wstr caption, u32 type) as MessageBox
+	
+	i32 MessageBoxW(u32 handle, *wstr text, *wstr caption, u32 type) 
+		as MessageBox(text, type) [
+			handle = 0
+			caption = app.caption
+		]
+
+	i32 MessageBoxW(u32 handle, *wstr text, *wstr caption, u32 type) 
+		as msg(text, type) {
+			handle = app.handle
+			caption = app.caption
+			u32 i = 1 + 5
+			type = i
+		}
+}
+
+import "kernel32.dll" 
+{
+	func ExitProcess(u32 code) as Exit(code)
+}
+
+
+
+
+procedure ExitProcess(Code: Integer); cdecl; external 'kernel32.dll';
+
+__declspec(dllimport) void ExitProcess(int)
