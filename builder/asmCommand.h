@@ -9,6 +9,9 @@
 #include "..\asm\asmSub.h"
 #include "..\asm\asmCall.h"
 #include "..\asm\asmNop.h"
+#include "..\asm\asmPush.h"
+#include "..\asm\asmPop.h"
+
 
 class AsmCommand
 {
@@ -24,6 +27,10 @@ public:
 			m_cmd = new AsmAdd(op1, op2);
 		} else if (cmd == ASM_CMD::CALL) {		
 			m_cmd = new AsmCall(op1);
+		} else if (cmd == ASM_CMD::PUSH) {		
+			m_cmd = new AsmPush(op1);
+		} else if (cmd == ASM_CMD::POP) {		
+			m_cmd = new AsmPop(op1);
 		} else {
 			op1 = nullptr;
 			op2 = op1;

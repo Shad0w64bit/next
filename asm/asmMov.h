@@ -75,7 +75,7 @@ public:
 			if (vs == 2) { f.write("\x66\xC7\x05", 3); } else
 			if (vs == 4) { f.write("\xC7\x05", 2); }
 			
-			std::cout << reserve() << std::endl;
+//			std::cout << reserve() << std::endl;
 			int cmd_end = offset + reserve();
 			int var_offset = var->offset() - cmd_end;
 			f.write( (char*) &var_offset, sizeof(DWORD) );
@@ -110,7 +110,7 @@ public:
 					if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 					op[2] |= ex->data;
 					DWORD i = m_op2->data;
-					std::cout << "Core: " << i << std::endl;
+//					std::cout << "Core: " << i << std::endl;
 					f.write((char*)&op, 3);
 					f.write((char*) &i, sizeof(DWORD) );
 				}				

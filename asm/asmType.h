@@ -210,6 +210,8 @@ enum class ASM_CMD
 	SUB,
 	ADD,
 	NOP,
+	PUSH,
+	POP,
 };
 
 std::ostream& operator<<(std::ostream& os, const ASM_CMD& cmd) {

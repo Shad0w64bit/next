@@ -1,0 +1,35 @@
+i32 recursive(i32 n)
+{
+	ret recursive(n+1);
+}
+
+func someError()
+{
+	panic!('Some Error')
+}
+
+func main()
+{
+	i32 res = recursive!1000(1): 
+		loop: io('Maximum nesting limit reached'); //ret
+
+	res = recursive!1000(1): 
+	{
+		loop: {
+			io('Maximum nesting limit reached')
+//			ret
+		}
+	}
+	
+	i32 a = 1, b = 0
+	a = a/b:
+	{
+		null: io('Division by 0') 
+	}
+	
+	someError():
+		err(E): io("Error{E}")
+	
+	
+	io('Result: {res}')
+}

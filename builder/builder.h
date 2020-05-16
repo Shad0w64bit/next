@@ -148,7 +148,7 @@ private:
 		header->OptionalHeader.MinorSubsystemVersion = 2;
 		header->OptionalHeader.MajorOperatingSystemVersion = 5;
 		header->OptionalHeader.MinorOperatingSystemVersion = 2;
-		header->OptionalHeader.Subsystem = 2; // 2 - Windows GUI; 3 - Console
+		header->OptionalHeader.Subsystem = 3; // 2 - Windows GUI; 3 - Console
 		header->OptionalHeader.FileAlignment = 0x200;
 		header->OptionalHeader.SectionAlignment = 0x1000;
 		header->OptionalHeader.ImageBase = 0x400000;
@@ -190,8 +190,10 @@ private:
 		
 		header->OptionalHeader.SizeOfImage = VA;
 		
-		header->OptionalHeader.SizeOfStackReserve = 0x1000;
-		header->OptionalHeader.SizeOfStackCommit = 0x1000;
+		// header->OptionalHeader.SizeOfStackReserve = 0x1000;
+		// header->OptionalHeader.SizeOfStackCommit = 0x1000;
+		header->OptionalHeader.SizeOfStackReserve = MAX_STACK_SIZE;
+		header->OptionalHeader.SizeOfStackCommit = MAX_STACK_SIZE;
 		header->OptionalHeader.SizeOfHeapReserve = 0x10000;
 		header->OptionalHeader.SizeOfHeapCommit = 0;
 		

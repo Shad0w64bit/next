@@ -52,12 +52,11 @@ public:
 			if ((sz != (*it)->size()) || (sz != (stop-start))) {
 				std::cout <<  "Alert: " << (*it)->cmd() << "\tReserve: " << (*it)->size() << "\tWrite: " << sz << "\tFact: " << (stop-start) << std::endl;
 			}
-			//std::cout << (*it)->cmd() << "\t" << sz << std::endl;
-			std::cout << (*it)->cmd() << "\t" << "offset: " << offset << "\t+\t" << sz << std::endl;
+			// std::cout << (*it)->cmd() << "\t" << "offset: " << offset << "\t+\t" << sz << std::endl;
 			offset += sz;
 		}
 		
-		std::cout << "CodeSection: " << m_rawSize << std::endl;
+//		std::cout << "CodeSection: " << m_rawSize << std::endl;
 		{			
 			int sz = ALIGN_UP(m_rawSize, align) - m_rawSize;
 			char* tmp = (char*)malloc(sz);

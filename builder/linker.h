@@ -88,8 +88,10 @@ public:
 				Function* func = op->getFunction();
 				auto args = op->getArguments();
 				
+				int paramSize = 0;
 				if (args->size() > 0) {
-					m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, 0x28 } ) );
+					paramSize = (args->size() > 4) ? args->size() : 4;
+					m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
 					
 					int c = 0;
 					for (auto arg=args->begin(); arg!=args->end(); ++arg)
@@ -108,7 +110,7 @@ public:
 							if ((*arg)->type()->type == IntType::ConstInt) {
 								QWORD dat = (*((*arg)->data()));
 								op2 = new Operand{AsmType::Constant, 4, dat};
-								std::cout << "Input: " << dat << std::endl;
+								// std::cout << "Input: " << dat << std::endl;
 							} else if ((*arg)->type()->type == IntType::ConstString) {
 								auto addr = m_ds->add(Data::Type::ConstString, (*arg)->data());
 								op2 = new Operand{AsmType::RData, 4, (QWORD) addr};
@@ -131,7 +133,7 @@ public:
 				}
 				
 				if (args->size() > 0) {
-					m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, 0x28 } ) );
+					m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
 				}
 				//std::cout << "CallFunction" << std::endl;
 			}

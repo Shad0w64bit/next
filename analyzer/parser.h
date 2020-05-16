@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "..\parser\namespace.h"
+#include "..\core\namespace.h"
 #include "..\core\typedef.h"
 #include "..\core\operations.h"
 #include "token.h"
@@ -178,7 +178,7 @@ public:
 	{
 		Type* ret = ns->types()->getTypeByName( (*it)->get() );
 		it++;
-		Function* f = new Function( (*it)->get(), (ret == nullptr) ? nullptr : new Variable("result", ret) );
+		Function* f = new Function( (*it)->get(), (ret == nullptr) ? nullptr : new Variable(nullptr, ret) );
 		it++;
 		if ( (*it)->is(Token::Kind::LeftParen) )
 		{
@@ -208,6 +208,12 @@ public:
 //			it++;
 			
 			it = parseCodeblock(it, ns, f->getCodeblock());
+			if (f->getCodeblock()->getStackSize() > MAX_STACK_SIZE) 
+			{					
+				MAX_STACK_SIZE = f->getCodeblock()->getStackSize();
+			}
+			std::cout << "MAX_STACK_SIZE: " << MAX_STACK_SIZE << std::endl;
+				
 			//it++; // }+
 		/*	
 			while (!(*it)->is(Token::Kind::RightCurly)) { 
@@ -231,7 +237,13 @@ public:
 //			std::cout << (*it)->get() << std::endl;
 			if ((*it)->is(Token::Kind::LeftCurly)) {
 				Codeblock* l_cb = new Codeblock();
+				l_cb->setParentCB(f);
 				it = parseCodeblock(it, ns, l_cb);
+				if (l_cb->getStackSize() > MAX_STACK_SIZE) 
+				{					
+					MAX_STACK_SIZE = l_cb->getStackSize();
+					std::cout << "MAX_STACK_SIZE: " << MAX_STACK_SIZE << std::endl;
+				}
 				f->addOperation( new OpCodeblock(l_cb) );
 				it++;
 				continue;
@@ -311,6 +323,11 @@ public:
 					it++;
 				}
 				
+				{
+					int ac = (args.size() - 4);
+					if ((ac > 0) && (f->funcArgSize() < ac))
+						f->setFuncArgSize(ac);
+				}
 				
 				// Find Function
 				

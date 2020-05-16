@@ -76,17 +76,31 @@ public:
 		return false;
 	}
 	
+	int funcArgSize() { return (m_funcArgSize > 0) ? m_funcArgSize : 0; }
+	void setFuncArgSize(int ac) { m_funcArgSize = ac; }
+	
+	
 	std::vector<Variable*>* getArguments() { return &m_arguments; }
 	std::vector<Variable*>* getVariables() { return &m_variables; }
-	std::vector<Operation*>* getOperations() { return &m_operations; }
+	std::vector<Operation*>* getOperations() { return &m_operations; }	
 	
+	void setParentCB(Codeblock* cb) { m_parentCB = cb; }
 	
-	
+	unsigned int getStackSize()
+	{
+		return ((m_parentCB != nullptr) ? m_parentCB->getStackSize() : 0) 
+			+ m_arguments.size() 
+			+ m_variables.size()
+			+ m_funcArgSize;
+	}
 	
 private:
 	std::vector<Variable*> m_variables;
 	std::vector<Variable*> m_arguments;
 	std::vector<Operation*> m_operations;
+	
+	int m_funcArgSize;
+	Codeblock* m_parentCB = nullptr;
 };
 
 #endif

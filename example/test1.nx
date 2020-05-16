@@ -1,10 +1,12 @@
 namespace Program
 
 i32 MessageBoxA(u32 handle, ^char text, ^char caption, u32 type) as MessageBox ['user32.dll']
+i32 printf(^char str, u32 d1) ['msvcrt.dll']
 func ExitProcess(u32 code) ['kernel32.dll']
 
 func main()
 {
-	MessageBox(0, 'Привет Лена!', 'MyApp', 64)
+//	MessageBox(0, 'Привет!', 'MyApp', 64)
+	printf('%d %d %d', 1, 2, 3)
 	ExitProcess(0)
 }

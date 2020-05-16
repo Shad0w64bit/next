@@ -1,10 +1,12 @@
 #include <iostream>
 #include <fstream>
 
+unsigned int MAX_STACK_SIZE = 4;
+
 #include "analyzer/token.h"
 #include "analyzer/lexer.h"
 #include "analyzer/parser.h"
-#include "linker/linker.h"
+#include "builder/linker.h"
 #include "arguments.h"
 #include "utils.h"
 
