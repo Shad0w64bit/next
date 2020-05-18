@@ -81,6 +81,14 @@ public:
 	void CodeblockToAsm(Codeblock* cb)
 	{
 		auto ops = cb->getOperations();
+
+//		std::cout << "funcArgSize: " << cb->funcArgSize() << std::endl;
+		if (cb->funcArgSize() > 0) {
+			m_cs->add( new AsmCommand(ASM_CMD::PUSH, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP} ) );
+			m_cs->add( new AsmCommand(ASM_CMD::MOV, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP}, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP} ) );
+			m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD) (((cb->funcArgSize() > 0) && (cb->funcArgSize()<4)) ? 4*8 : cb->funcArgSize()*8) } ) );
+		}
+		
 		for (auto it=ops->begin(); it!=ops->end(); ++it)
 		{
 			if ((*it)->type() == Operation::Type::CallFunction) {
@@ -88,13 +96,14 @@ public:
 				Function* func = op->getFunction();
 				auto args = op->getArguments();
 				
-				int paramSize = 0;
+//				int paramSize = 0;
 				if (args->size() > 0) {
-					paramSize = (args->size() > 4) ? args->size() : 4;
-					m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
+//					paramSize = (args->size() > 4) ? args->size() : 4;
+//					m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
 					
 					int c = 0;
-					for (auto arg=args->begin(); arg!=args->end(); ++arg)
+					auto arg=args->begin();
+					for (; (arg!=args->end() && c < 4); ++arg)
 					{
 						
 						Operand* op1 = nullptr;
@@ -111,7 +120,7 @@ public:
 								QWORD dat = (*((*arg)->data()));
 								op2 = new Operand{AsmType::Constant, 4, dat};
 								// std::cout << "Input: " << dat << std::endl;
-							} else if ((*arg)->type()->type == IntType::ConstString) {
+							} else if ((*arg)->type()->type == IntType::ConstString) {								
 								auto addr = m_ds->add(Data::Type::ConstString, (*arg)->data());
 								op2 = new Operand{AsmType::RData, 4, (QWORD) addr};
 								//std::cout << (*arg)->data() << std::endl;
@@ -123,6 +132,32 @@ public:
 						
 						c++;
 					}
+					
+					int offset = 4*8;
+					while (arg != args->end())
+					{
+						Operand* op3 = nullptr;
+						if ((*arg)->name() == nullptr) {
+							if ((*arg)->type()->type == IntType::ConstInt) {
+								QWORD dat = (*((*arg)->data()));
+								op3 = new Operand{AsmType::Constant, 4, dat};
+					    		//std::cout << "Dop Input: " << dat << std::endl;
+							} else if ((*arg)->type()->type == IntType::ConstString) {								
+								auto addr = m_ds->add(Data::Type::ConstString, (*arg)->data());
+								op3 = new Operand{AsmType::RData, 4, (QWORD) addr};
+								//std::cout << (*arg)->data() << std::endl;
+							}
+						}
+						
+						m_cs->add( new AsmCommand(ASM_CMD::PMOV, 
+							new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP}, 
+							new Operand{AsmType::Pointer, 4, (QWORD) offset},
+							op3)
+						);
+						
+						offset += 8;
+						arg++;
+					}
 				}
 				
 				if (func->isImport()) {
@@ -132,11 +167,16 @@ public:
 					m_cs->add( new AsmCommand(ASM_CMD::CALL, new Operand{AsmType::Library, 4, (QWORD) lfunc}) );					
 				}
 				
-				if (args->size() > 0) {
-					m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
-				}
+//				if (args->size() > 0) {
+//					m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
+//				}
 				//std::cout << "CallFunction" << std::endl;
 			}
+		}
+		
+		if (cb->funcArgSize() > 0) {
+			m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD) (((cb->funcArgSize() > 0) && (cb->funcArgSize()<4)) ? 4*8 : cb->funcArgSize()*8) } ) );
+			m_cs->add( new AsmCommand(ASM_CMD::POP, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP} ) );
 		}
 		
 	}

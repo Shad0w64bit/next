@@ -12,7 +12,8 @@ public:
 		: AsmTemplate(ASM_CMD::MOV, op1, op2) {}
 	
 	// Length of command
-	int reserve() override {
+	int reserve() override 
+	{
 		// Variable < Constant
 		if ((m_op1->type == AsmType::Bss) && (m_op2->type == AsmType::Constant))		  
 		{
@@ -23,6 +24,30 @@ public:
 			
 		}
 		
+		// Register < Register
+		if ((m_op1->type == AsmType::Register) && (m_op2->type == AsmType::Register))
+		{
+			Reg r;
+			RegEnum reg1 = (RegEnum) m_op1->data;
+			auto ex1 = r.get(reg1);
+			RegEnum reg2 = (RegEnum) m_op2->data;
+			auto ex2 = r.get(reg2);
+			
+			int total = 0;
+			
+			if (ex1->len == 2)
+				total++;
+			
+			if ( !((ex1->rex == REX::None) && (ex2->rex == REX::None))
+					|| (ex1->len == 8)
+					|| (ex1->len == 1 && (ex1->data == RegEnum::SPL || ex1->data == RegEnum::BPL || ex1->data == RegEnum::DIL || ex1->data == RegEnum::SIL )) 
+					|| (ex2->len == 1 && (ex2->data == RegEnum::SPL || ex2->data == RegEnum::BPL || ex2->data == RegEnum::DIL || ex2->data == RegEnum::SIL ))
+				)
+				total++;
+				
+			return total + 2;
+		}
+		
 		// Register < Constant
 		// Register < Variable
 		// Register < RData
@@ -31,6 +56,7 @@ public:
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;
 			auto ex = r.get(reg);
+			
 			if (ex->len == 8) {
 				return 2 + ((m_op2->len != 8) ? 1 : 0) + m_op2->len;
 			} else {
@@ -40,25 +66,7 @@ public:
 				return 1 + special + word + ext;
 			}
 		}
-/*		if ((m_op1->type == Type::Register) && (m_op2->type == Type::Variable))
-		{
-			Reg r;
-			RegEnum reg = (RegEnum) m_op1->data;
-			auto ex = r.get(reg);
-			//auto var = (Variable*) m_op2->data;
-			
-			
-			
-		}
 		
-		if ((m_op1->type == Type::Register) && (m_op2->type == Type::RData))
-		{
-			Reg r;
-			RegEnum reg = (RegEnum) m_op1->data;
-			auto ex = r.get(reg);
-			
-		}
-		*/
 		return 0;		
 	}
 	
@@ -154,6 +162,43 @@ public:
 				}
 				
 				
+			} 
+			else if (m_op2->type == AsmType::Register)
+			{
+				Reg r;
+				RegEnum reg1 = (RegEnum) m_op1->data;
+				auto ex1 = r.get(reg1);
+				RegEnum reg2 = (RegEnum) m_op2->data;
+				auto ex2 = r.get(reg2);
+					
+				char pref16 = 0x66;
+				char prefix = 0x40;
+				BYTE op[2] = {0x88, 0xC0};					
+				
+				op[1] |= ex1->data;
+				if (ex1->rex == REX::Ex)
+					prefix |= 1;
+				if (ex1->len != 1)
+					op[0] |= 1;
+				
+				op[1] |= (ex2->data << 3);
+				if (ex2->rex == REX::Ex) 
+					prefix |= (1 << 2);
+				
+				// Prefix 16-bit
+				if (ex1->len == 2)
+					f.write(&pref16, 1);
+				
+				// Prefix for Extra Registers
+				if ( !((ex1->rex == REX::None) && (ex2->rex == REX::None))
+					|| (ex1->len == 8)
+					|| (ex1->len == 1 && (ex1->data == RegEnum::SPL || ex1->data == RegEnum::BPL || ex1->data == RegEnum::DIL || ex1->data == RegEnum::SIL )) 
+					|| (ex2->len == 1 && (ex2->data == RegEnum::SPL || ex2->data == RegEnum::BPL || ex2->data == RegEnum::DIL || ex2->data == RegEnum::SIL ))
+				)
+					f.write(&prefix, 1);
+				
+				// Some opcode
+				f.write((char*) &op, 2);		
 			}
 		}
 		

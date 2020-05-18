@@ -116,10 +116,18 @@ lex_start:
 			}
 			escape = true;
 			continue;
-		} else if ((str && !escape and (c != '\'')) ||
-					(str and escape))
+		} else if (str && !escape and (c != '\''))
 		{
 			word += c;
+			escape = false;
+			continue;
+		} else if (str and escape)
+		{
+			switch(c) {
+				case 'n': word += "\n"; break;
+				case 't': word += "\t"; break;
+				default: word += c; break;
+			}
 			escape = false;
 			continue;
 		}

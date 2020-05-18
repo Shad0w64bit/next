@@ -5,6 +5,7 @@
 #include "..\asm\asmTemplate.h"
 
 #include "..\asm\asmMov.h"
+#include "..\asm\asmPMov.h"
 #include "..\asm\asmAdd.h"
 #include "..\asm\asmSub.h"
 #include "..\asm\asmCall.h"
@@ -19,6 +20,8 @@ public:
 	AsmCommand(ASM_CMD cmd, Operand* op1 = nullptr, Operand* op2 = nullptr, Operand* op3 = nullptr, Operand* op4 = nullptr) {
 		if (cmd == ASM_CMD::MOV) {
 			m_cmd = new AsmMov(op1, op2);
+		} else if (cmd == ASM_CMD::PMOV) {
+			m_cmd = new AsmPMov(op1, op2, op3);
 		} else if (cmd == ASM_CMD::NOP) {		
 			m_cmd = (op1 == nullptr) ? (new AsmNop()) : (new AsmNop(op1));
 		} else if (cmd == ASM_CMD::SUB) {		

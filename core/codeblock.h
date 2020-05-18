@@ -76,8 +76,8 @@ public:
 		return false;
 	}
 	
-	int funcArgSize() { return (m_funcArgSize > 0) ? m_funcArgSize : 0; }
-	void setFuncArgSize(int ac) { m_funcArgSize = ac; }
+	unsigned int funcArgSize() { return (m_funcArgSize > 0) ? m_funcArgSize : 0; }
+	void setFuncArgSize(unsigned int ac) { m_funcArgSize = ac; }
 	
 	
 	std::vector<Variable*>* getArguments() { return &m_arguments; }
@@ -99,7 +99,7 @@ private:
 	std::vector<Variable*> m_arguments;
 	std::vector<Operation*> m_operations;
 	
-	int m_funcArgSize;
+	unsigned int m_funcArgSize;
 	Codeblock* m_parentCB = nullptr;
 };
 

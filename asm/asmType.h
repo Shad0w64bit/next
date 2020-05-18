@@ -12,6 +12,7 @@ enum class AsmType
 	RData,
 	Bss,
 	Library,
+	LocalVar,
 };
 
 enum REX {
@@ -206,6 +207,7 @@ struct Operand
 enum class ASM_CMD
 {
 	MOV,
+	PMOV,
 	CALL,
 	SUB,
 	ADD,
@@ -217,10 +219,13 @@ enum class ASM_CMD
 std::ostream& operator<<(std::ostream& os, const ASM_CMD& cmd) {
   static const char* const names[]{
 	"MOV",
+	"PMOV",
 	"CALL",
 	"SUB",
 	"ADD",
 	"NOP",
+	"PUSH",
+	"POP",
   };
   return os << names[static_cast<int>(cmd)];
 }

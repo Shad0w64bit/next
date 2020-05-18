@@ -1,0 +1,40 @@
+
+i32 printf(^char str, [u32,i32,^char]...) ['msvcrt.dll']
+i32 printf(^char str, [u32]...) ['msvcrt.dll']
+i32 printf(^char str, [<T>,<T2>]...) ['msvcrt.dll']
+i32 MessageBoxA(u32 handle, ^char text, ^char caption, u32 type) as MessageBox ['user32.dll']
+func ExitProcess(u32 code) ['kernel32.dll']
+
+import "kernel32.dll" 
+{
+	func ExitProcess(u32 code) as Exit(code)
+}
+
+import 'user32.dll'
+{
+	// Regular Import
+	i32 MessageBoxA(u32 handle, ^char text, ^char caption, u32 type)
+
+	// Renamed Import
+	i32 MessageBoxA(u32 handle, ^char text, ^char caption, u32 type) as MessageBox(type, caption, text, handle)
+	i32 MessageBoxA(u32 handle, ^str text,  ^str caption,  u32 type) as MessageBox
+	i32 MessageBoxW(u32 handle, ^wstr text, ^wstr caption, u32 type) as MessageBox
+	
+	// Special import
+	
+	// Params as array
+	i32 MessageBoxW(u32 handle, ^wstr text, ^wstr caption, u32 type) 
+		as MessageBox(text, type) [
+			handle = 0
+			caption = app.caption
+		]
+	
+	// Params as Code
+	i32 MessageBoxW(u32 handle, ^wstr text, ^wstr caption, u32 type) 
+		as msg(text, u32 type) {
+			handle = app.handle
+			caption = app.caption
+			u32 i = 1 + 5
+			type = i
+		}
+}

@@ -324,9 +324,9 @@ public:
 				}
 				
 				{
-					int ac = (args.size() - 4);
-					if ((ac > 0) && (f->funcArgSize() < ac))
-						f->setFuncArgSize(ac);
+//					int ac = (args.size() - 4);
+					if (f->funcArgSize() < args.size())
+						f->setFuncArgSize( args.size() );
 				}
 				
 				// Find Function

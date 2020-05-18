@@ -17,13 +17,12 @@ typedef i32 qwe
 
 func main
 {
-obj1 o1
-obj o = we
+	obj1 o1
+	obj o = we
 
-cls1 c1
-cls c = df
+	cls1 c1
+	cls c = df
 
-qwe q
-qwe q = 2
-
+	qwe q
+	qwe q = 2
 }
