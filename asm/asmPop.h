@@ -22,9 +22,10 @@ public:
 		return 0;
 	}
 	
-	int write(std::ofstream& f, int offset)
+	int write(std::ofstream& f, int offset, int va) override
 	{
 		offset = offset + 1; // Nothing
+		va = va + 1;
 		
 		if (m_op1->type == AsmType::Register) 
 		{

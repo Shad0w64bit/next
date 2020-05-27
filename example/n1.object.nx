@@ -1,0 +1,45 @@
+object Square
+{
+public:
+	u32 perimeter() { ret 2*(height + width) }
+	u32 area() { ret height * width}
+
+	prop Height read height write height
+	prop Width read width write width
+	
+private:
+	u32 height
+	u32 width
+}
+
+object Square
+{
+/*
+public:
+	Everything of property create public method for get and set
+	unless otherwise specified
+
+	prop perimeter
+		get: ret 2*(height + width) 
+	
+	prop area
+		get: ret height * width
+*/	
+	
+private:
+	prop u32 perimeter
+		get: ret 2*(height + width) 
+		
+	u32 perimeter  
+		get: ret 2*(height + width) 
+	
+	
+	u32 area { 
+		get {
+			ret height * width
+		}
+	}		
+	
+	u32 height { get; set }
+	u32 width  { get; set }
+}

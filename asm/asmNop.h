@@ -17,9 +17,10 @@ public:
 		return (m_op1 != nullptr) ? (int)m_op1->data : 1;
 	}
 	
-	int write(std::ofstream& f, int offset)
+	int write(std::ofstream& f, int offset, int va) override
 	{
 		offset = offset + 1; // Nothing
+		va = va + 1;
 
 		if (m_op1 == nullptr) {
 			f.write("\x90", 1);

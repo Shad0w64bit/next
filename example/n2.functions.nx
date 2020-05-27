@@ -1,0 +1,54 @@
+
+func printHello()
+{
+	func hello()
+	{
+		printf('Hello')
+	}
+	
+	func world()
+	{
+		func padding()
+		{
+			printf(' ')
+		}
+		
+		padding()
+		printf('World')
+	}
+	
+	
+	hello();
+	world();
+}
+
+func main()
+{
+	// 1 func in func in func
+	printHello()
+	
+	// 2 anonymous func and call
+	[&] func () { 				// [&] all namespace of parent (optional)
+		printf('Hello world')
+	}()
+	
+	// 3 func in variable
+	^func hw = func () {
+		printf('Hello world')
+	}
+	hw();
+	
+	^char hello = 'Hello'
+	^char world = 'world'
+	// 4 anonymous function with params from parent function
+	[hello, world] func () 
+	{
+		printf('%s %s', hello, world)
+	}
+	
+	^func recursive = func (u32 n) {
+		(n + 1) // call self
+	}
+	u32 res = recursive!1000(10)
+	
+}

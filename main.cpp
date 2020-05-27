@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 
 unsigned int MAX_STACK_SIZE = 4;
 
@@ -58,25 +59,37 @@ int main()
 	Lexer lex (file, tokens);
 	lex.analyze();	
 	
-	Parser pars (tokens);
-	pars.parse();	
-	
-	Linker link (&pars, "Program", "main");
-	
-	link.build("test1.exe");
-	
-	
 	if (args.is("-l")) { // Export lexem to file		
 		const char* f = args.get("-l");
 		std::cout << "[out] Lexem file: \t" << f << std::endl;
 		exportLexemToFile(tokens, f);
 	}
 	
+	Parser pars (tokens);
+	pars.parse();	
+	
 	if (args.is("-d")) { // Export dump to file		
 		const char* f = args.get("-d");
 		std::cout << "[out] File with dump: \t" << f << std::endl;
 		dumpToFile(&pars, f);
 	}
+	
+	MAX_STACK_SIZE = 0x1000;
+	std::cout << "MAX_STACK_SIZE: " << MAX_STACK_SIZE << std::endl;
+	
+	Linker link (&pars, "Program", "main");	
+	
+
+	if (args.is("-o")) { // Output binary file
+		const char* f = args.get("-o");
+		link.build(f);
+	} else {		
+		char* of = (char*)malloc(strlen(f) + 4 + 1);
+		strcpy(of, f);
+		memcpy(of + strlen(f), ".exe\0", 5);
+		link.build(of);
+		free(of);
+	}	
 	
 	return 0;
 }

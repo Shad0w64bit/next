@@ -28,6 +28,11 @@ public:
 		m_commands.push_back(cmd);
 	}
 	
+	DWORD curVaOffset()
+	{
+		return m_vaSize;
+	}
+	
 	
 	void prepare() override
 	{
@@ -47,7 +52,7 @@ public:
 		for (auto it=m_commands.begin(); it!=m_commands.end(); ++it)
 		{			
 			auto start = f.tellp();
-			int sz = (*it)->write(f, m_header.VirtualAddress + offset);
+			int sz = (*it)->write(f, offset, m_header.VirtualAddress);
 			auto stop = f.tellp();
 			if ((sz != (*it)->size()) || (sz != (stop-start))) {
 				std::cout <<  "Alert: " << (*it)->cmd() << "\tReserve: " << (*it)->size() << "\tWrite: " << sz << "\tFact: " << (stop-start) << std::endl;

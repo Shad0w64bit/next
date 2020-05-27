@@ -113,6 +113,10 @@ public:
 	const char* getLibrary() { return m_lib; }
 	Codeblock* getCodeblock() { return &m_codeblock; };
 	
+	DWORD address() { return m_address + m_offset; }
+	void setVA(DWORD address) { m_address = address; }
+	void setOffset(DWORD offset) { m_offset = offset; }
+	
 private:
 	char* m_name;
 	char* m_alias;
@@ -121,6 +125,8 @@ private:
 //	char* m_func;
 	Variable* m_ret;
 	//std::vector<Variable*> m_args;
+	DWORD m_offset = 0;
+	DWORD m_address = 0;
 };
 
 #endif

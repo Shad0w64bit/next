@@ -208,11 +208,11 @@ public:
 //			it++;
 			
 			it = parseCodeblock(it, ns, f->getCodeblock());
-			if (f->getCodeblock()->getStackSize() > MAX_STACK_SIZE) 
+			if (f->getCodeblock()->getMaxStackSize() > MAX_STACK_SIZE) 
 			{					
-				MAX_STACK_SIZE = f->getCodeblock()->getStackSize();
+				MAX_STACK_SIZE = f->getCodeblock()->getMaxStackSize();
 			}
-			std::cout << "MAX_STACK_SIZE: " << MAX_STACK_SIZE << std::endl;
+//			std::cout << "CB funcArgSize: " << f->getCodeblock()->funcArgSize() << std::endl;			
 				
 			//it++; // }+
 		/*	
@@ -284,7 +284,7 @@ public:
 		return false;
 	}
 	
-	std::vector<Token*>::iterator parseCallFunction(std::vector<Token*>::iterator it, Namespace* ns, Codeblock* f)
+	std::vector<Token*>::iterator parseCallFunction(std::vector<Token*>::iterator it, Namespace* ns, Codeblock* cb)
 	{
 		const char* fname = (*it)->get();
 		if ((*it)->is(Token::Kind::Identifier))
@@ -299,10 +299,11 @@ public:
 				{
 					if ((*it)->is(Token::Kind::Identifier))
 					{
-						if (f->hasVariable( (*it)->get() )) {
-							args.push_back( f->getVariable((*it)->get()) );
-						} else if (f->hasArgument( (*it)->get() )) {
-							args.push_back( f->getArgument((*it)->get()) );
+						if (cb->hasVariable( (*it)->get() )) {
+							//printf("test %s\n", (*it)->get());
+							args.push_back( cb->getVariable((*it)->get()) );
+						} else if (cb->hasArgument( (*it)->get() )) {
+							args.push_back( cb->getArgument((*it)->get()) );
 						} else if (ns->hasVariable( (*it)->get() )) {
 							args.push_back( ns->getVariable((*it)->get()) );
 						} else {
@@ -325,8 +326,10 @@ public:
 				
 				{
 //					int ac = (args.size() - 4);
-					if (f->funcArgSize() < args.size())
-						f->setFuncArgSize( args.size() );
+					if (cb->funcArgSize() < args.size()) {
+//						std::cout << "setFuncArgSize: " << args.size() << std::endl;
+						cb->setFuncArgSize( args.size() );
+					}
 				}
 				
 				// Find Function
@@ -341,7 +344,7 @@ public:
 					opFunc->addArgument( (*arg) );
 				}
 				
-				f->addOperation( opFunc );
+				cb->addOperation( opFunc );
 				
 //				std::cout << "Parse Function" << std::endl;
 				// End Find Function
@@ -412,15 +415,32 @@ public:
 		if (t != nullptr)
 		{
 			while ( !((*it)->is(Token::Kind::LineBreak) ||
-					(*it)->is(Token::Kind::Semicolon) ||
-					(*it)->is(Token::Kind::Assign)) )
+					(*it)->is(Token::Kind::Semicolon)/* ||
+					(*it)->is(Token::Kind::Assign)*/) )
 			{
+				Variable* var = nullptr;
 				if ((*it)->is(Token::Kind::Identifier))
 				{
-					ns->addVariable( new Variable((*it)->get(), t) );
+					var = new Variable((*it)->get(), t);
+//					std::cout << "Variable " << var->name() << std::endl;
+					ns->addVariable( var );
 				}
-				++it;
-			}			
+				
+				//printf("Variable %s", var->name());
+/*				
+				it++;				
+				if ((var != nullptr) && (!(*it)->is(Token::Kind::Assign)))
+					continue;
+				
+				it++;
+				
+				if ((*it)->is(Token::Kind::Number)) {
+					int val = atoi((*it)->get());
+					//printf("Assign %s = %d", var->name(), val);
+					var->setData( (char*) &val );
+				}
+				it++;*/
+			}
 		}
 		return it;
 	}
@@ -434,15 +454,31 @@ public:
 		if (t != nullptr)
 		{
 			while ( !((*it)->is(Token::Kind::LineBreak) ||
-					(*it)->is(Token::Kind::Semicolon) ||
-					(*it)->is(Token::Kind::Assign)) )
+					(*it)->is(Token::Kind::Semicolon)/* ||
+					(*it)->is(Token::Kind::Assign)*/) )
 			{
+				Variable* var = nullptr;
 				if ((*it)->is(Token::Kind::Identifier))
 				{					
+					var = new Variable((*it)->get(), t);
 					//std::cout << "Local: " << t->name() << "\t" << (*it)->get() << std::endl;
-					cb->addVariable( new Variable((*it)->get(), t) );
+					cb->addVariable( var );
+					
+					it++;
+					
+					if ((var != nullptr) && (!(*it)->is(Token::Kind::Assign)))
+						continue;
+					
+					it++;
+				
+					if ((*it)->is(Token::Kind::Number)) {
+						int val = atoi((*it)->get());						
+//						printf("Assign %s = %d\n", var->name(), val);
+						
+						var->setData( (char*) &val );
+					}					
 				}			
-				++it;
+				++it;					
 			}			
 		}
 		return it;

@@ -112,7 +112,19 @@ void printCodeblock(std::ofstream& f, Namespace* ns, Codeblock* cb, int offset =
 		for (auto it=vars->begin(); it!=vars->end(); ++it)
 		{
 			PRINT_OFFSET(2)
-			f << (*it)->name() << ":\t" << (*it)->type()->name << std::endl;
+			f << (*it)->type()->name << "\t" << (*it)->name();
+			
+			if ((*it)->isInit()) {
+				if (((*it)->type()->type == IntType::i32) || ((*it)->type()->type == IntType::u32) || ((*it)->type()->type == IntType::ConstInt))
+				{
+					int* val = (int*) (*it)->data();
+					f << " = " << *val;
+				} else if ((*it)->type()->type == IntType::ConstString) {
+					f << " = " << (char*)(*it)->data();
+				}
+			}
+	//			f << " = " << (QWORD)(*it)->data();			
+			f << std::endl;
 		}
 	}
 	

@@ -76,7 +76,7 @@ public:
 		return false;
 	}
 	
-	unsigned int funcArgSize() { return (m_funcArgSize > 0) ? m_funcArgSize : 0; }
+	unsigned int funcArgSize() { return m_funcArgSize; }
 	void setFuncArgSize(unsigned int ac) { m_funcArgSize = ac; }
 	
 	
@@ -85,8 +85,15 @@ public:
 	std::vector<Operation*>* getOperations() { return &m_operations; }	
 	
 	void setParentCB(Codeblock* cb) { m_parentCB = cb; }
-	
+		
 	unsigned int getStackSize()
+	{
+		return m_arguments.size() 
+			 + m_variables.size()
+			 + m_funcArgSize;
+	}
+	
+	unsigned int getMaxStackSize()
 	{
 		return ((m_parentCB != nullptr) ? m_parentCB->getStackSize() : 0) 
 			+ m_arguments.size() 
@@ -99,7 +106,7 @@ private:
 	std::vector<Variable*> m_arguments;
 	std::vector<Operation*> m_operations;
 	
-	unsigned int m_funcArgSize;
+	unsigned int m_funcArgSize = 0;
 	Codeblock* m_parentCB = nullptr;
 };
 

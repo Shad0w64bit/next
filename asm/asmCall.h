@@ -13,26 +13,30 @@ public:
 	
 	int reserve() override
 	{
-		return 6;
+		return 5;
 	}
 	
-	int write(std::ofstream& f, int offset)
-	{
-		BYTE op[2] = {0xFF, 0x15};
-		f.write((char*) &op, 2);
+	int write(std::ofstream& f, int offset, int va) override
+	{		
+		va = va + 1;
+		char op = 0xE8;
+		f.write(&op, 1);
 		
-		if (m_op1->type == AsmType::Library) {
-			ImportFunc* lib = (ImportFunc*) m_op1->data;
-			
-			//std::cout << "Cmd: " << offset << "\nReserve: " << reserve() << "\nOffset: " << lib->offsetIAT << std::endl;
-			
+		/*if (m_op1->type == AsmType::Pointer) 
+		{
+			f.write( (char*) &m_op1->data, sizeof(DWORD) );
+		} 
+		else */
+		if (m_op1->type == AsmType::Function) 
+		{
+			Function* func = (Function*) m_op1->data;
 			
 			int cmd_end = offset + reserve();
-			int lib_offset = lib->offsetIAT - cmd_end;
+			int lib_offset = func->address() - cmd_end;
 			f.write( (char*) &lib_offset, sizeof(DWORD) );
 		}
 
-		return 6;
+		return 5;
 	}
 };	
 

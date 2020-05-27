@@ -9,10 +9,12 @@ enum class AsmType
 	Variable,
 	Register,
 	Constant,
+	Offset,
 	RData,
 	Bss,
 	Library,
 	LocalVar,
+	Function,
 };
 
 enum REX {
@@ -209,11 +211,14 @@ enum class ASM_CMD
 	MOV,
 	PMOV,
 	CALL,
+	CALLPTR,
 	SUB,
 	ADD,
 	NOP,
 	PUSH,
 	POP,
+	RET,
+	LEA,
 };
 
 std::ostream& operator<<(std::ostream& os, const ASM_CMD& cmd) {
@@ -221,11 +226,14 @@ std::ostream& operator<<(std::ostream& os, const ASM_CMD& cmd) {
 	"MOV",
 	"PMOV",
 	"CALL",
+	"CALLPTR",
 	"SUB",
 	"ADD",
 	"NOP",
 	"PUSH",
 	"POP",
+	"RET",
+	"LEA",
   };
   return os << names[static_cast<int>(cmd)];
 }

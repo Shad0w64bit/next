@@ -15,8 +15,19 @@ object obj
 
 typedef i32 qwe
 
+func (
+	i32	  p1 // number
+	^i32  p2 // pointer to i32
+	&i32  p3 // link to exists variable
+	i32[4] p4 // link to array of i32 (?)
+)
+{
+
+}
+
 func main
 {
+
 	obj1 o1
 	obj o = we
 

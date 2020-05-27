@@ -17,12 +17,20 @@ public:
 	}
 	
 	virtual int reserve() { return 0; }
-	virtual int write(std::ofstream& f, int offset) 
+/*	virtual int write(std::ofstream& f, int offset) 
 	{ 
 		offset = offset + 1;	// Something
 		f.tellp();				// Nothing
 		return 0; 
-	}
+	}*/
+	
+	virtual int write(std::ofstream& f, int offset, int va)
+	{
+		offset = offset + 1;	// Something
+		va = va + 1;
+		f.tellp();				// Nothing
+		return 0; 
+	}	
 	
 	ASM_CMD cmd() { return m_cmd; }
 	

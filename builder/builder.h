@@ -140,10 +140,8 @@ private:
 		header_offset += writeAlign(f,(char*) &m_dos_header, sizeof(IMAGE_DOS_HEADER), 64);
 		header_offset += writeAlign(f, m_dos_stub, 56, 0x40);		
 		header_offset += (m_type == Builder::AppType::App64) ? sizeof(IMAGE_NT_HEADERS64) : sizeof(IMAGE_NT_HEADERS32);
-		header_offset += m_sections.size() * sizeof(IMAGE_SECTION_HEADER);		
 
 		auto header = ((IMAGE_NT_HEADERS64*)m_pe_header);
-		header->FileHeader.NumberOfSections = m_sections.size();
 		header->OptionalHeader.MajorSubsystemVersion = 5;
 		header->OptionalHeader.MinorSubsystemVersion = 2;
 		header->OptionalHeader.MajorOperatingSystemVersion = 5;
@@ -162,7 +160,19 @@ private:
 		
 		int offset = header->OptionalHeader.SizeOfHeaders;
 		int VA = 0x1000;
-				
+		
+		for (auto it=m_sections.begin(); it != m_sections.end(); ++it)
+		{
+			if ((*it)->vaSize() == 0) {
+				it = m_sections.erase(it);
+				it--;
+			}			
+		}
+		
+		header_offset += m_sections.size() * sizeof(IMAGE_SECTION_HEADER);		
+		header->FileHeader.NumberOfSections = m_sections.size();
+		
+		
 		for (auto it=m_sections.begin(); it != m_sections.end(); ++it)
 		{
 			auto head = (*it)->header();
@@ -182,11 +192,13 @@ private:
 			
 //			std::cout <<  (*it)->name() << ":\t"<< (*it)->size() << std::endl;
 			
-			VA += ((*it)->vaSize() == 0) 
+			VA += ((*it)->rawSize() == 0) 
 				? header->OptionalHeader.SectionAlignment 
 				: ALIGN_UP( (*it)->vaSize(), header->OptionalHeader.SectionAlignment );
 			offset += ALIGN_UP( (*it)->rawSize(), header->OptionalHeader.FileAlignment);
 		}
+		
+		
 		
 		header->OptionalHeader.SizeOfImage = VA;
 		

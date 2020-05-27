@@ -1,4 +1,7 @@
 **.exe
 **.log
 **.bat
-example\bin\*
+**.bak
+**.tmp
+\example\bin\
+file.tmp

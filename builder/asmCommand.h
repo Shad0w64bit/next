@@ -9,9 +9,12 @@
 #include "..\asm\asmAdd.h"
 #include "..\asm\asmSub.h"
 #include "..\asm\asmCall.h"
+#include "..\asm\asmCallPtr.h"
 #include "..\asm\asmNop.h"
 #include "..\asm\asmPush.h"
 #include "..\asm\asmPop.h"
+#include "..\asm\asmRet.h"
+#include "..\asm\asmLea.h"
 
 
 class AsmCommand
@@ -28,12 +31,18 @@ public:
 			m_cmd = new AsmSub(op1, op2);
 		} else if (cmd == ASM_CMD::ADD) {		
 			m_cmd = new AsmAdd(op1, op2);
+		} else if (cmd == ASM_CMD::CALLPTR) {		
+			m_cmd = new AsmCallPtr(op1);
 		} else if (cmd == ASM_CMD::CALL) {		
 			m_cmd = new AsmCall(op1);
 		} else if (cmd == ASM_CMD::PUSH) {		
 			m_cmd = new AsmPush(op1);
 		} else if (cmd == ASM_CMD::POP) {		
 			m_cmd = new AsmPop(op1);
+		} else if (cmd == ASM_CMD::RET) {		
+			m_cmd = new AsmRet();
+		} else if (cmd == ASM_CMD::LEA) {
+			m_cmd = new AsmLea(op1, op2);
 		} else {
 			op1 = nullptr;
 			op2 = op1;
@@ -53,15 +62,24 @@ public:
 	
 	int size()
 	{		
-		return (m_cmd != nullptr)
+		int res = 0;
+		if (m_cmd != nullptr)
+		{
+			std::ofstream f ("file.tmp", std::ios::out | std::ios::binary);
+			res = m_cmd->write(f, 1000, 1000);
+			f.close();
+		}
+		
+		return res;
+		/*return (m_cmd != nullptr)
 			? m_cmd->reserve()
-			: 0;
+			: 0;*/
 	}
 	
-	int write(std::ofstream& f, int offset)
+	int write(std::ofstream& f, int offset, int va)
 	{
 		return (m_cmd != nullptr)
-			? m_cmd->write(f, offset)
+			? m_cmd->write(f, offset, va)
 			: 0;
 	}
 	
