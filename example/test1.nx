@@ -26,7 +26,6 @@ func main()
 {
 	i32 a=10,b=20	
 	printf('Numbers is %d, %d, %d, %d, %d\n', 0, 5, a, 15, b)
-}
 	
 	//	i32 a=1,b=2,c=3,d=4,e=5,f=6
 //	hi()

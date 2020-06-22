@@ -85,11 +85,11 @@ public:
 	bool isInit() { return m_init; }
 	
 private:
+	int m_offset; // Address
+	char* m_data; // Data
 	char* m_name;
-	char* m_data;
 	int m_size;
 	Type* m_type;
-	int m_offset;
 	bool m_init;
 	
 };

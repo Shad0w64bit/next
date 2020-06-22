@@ -472,11 +472,13 @@ public:
 					it++;
 				
 					if ((*it)->is(Token::Kind::Number)) {
-						int val = atoi((*it)->get());						
+						int val = atoi((*it)->get());
 //						printf("Assign %s = %d\n", var->name(), val);
 						
 						var->setData( (char*) &val );
-					}					
+					} else if ((*it)->is(Token::Kind::String)) {						
+						//var->setData( (char*) (*it)->get(), strlen( (*it)->get() ) );
+					}
 				}			
 				++it;					
 			}			

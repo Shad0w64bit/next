@@ -46,7 +46,7 @@ private:
 #define INSERT_TOKEN() { if((token->kind() == Token::Kind::Identifier) && isKeyword(word.c_str())) { token->setKind(Token::Kind::Keyword); }; int len = word.length() + 1; char* w = (char*) malloc(len); memcpy(w, word.c_str(), len); token->set(w); lastToken = token; m_tokens.insert(m_tokens.end(), token); }
 #define INSERT_TOKEN_AND_CLEAR() { INSERT_TOKEN(); token = nullptr; word.clear(); }
 
-#define TEST_CHAR(char,type) else if (c == char) { token = new Token(Token::Kind::type); INSERT_TOKEN_AND_CLEAR(); }
+#define TEST_CHAR(char,type) else if (c == char) { token = new Token(Token::Kind::type, line, pos); INSERT_TOKEN_AND_CLEAR(); }
 
 void Lexer::step1()
 {
@@ -61,7 +61,10 @@ void Lexer::step1()
 /*	Namespace* ns = new Namespace("Program");
 	m_namespaces.add(ns);*/
 	
-	int line = 1;
+	unsigned int line = 1;
+	unsigned int pos = 1;
+	
+	
 	
 	while ((c = m_stream.get()) != EOF)
 	{
@@ -70,7 +73,7 @@ lex_start:
 			auto pos = m_stream.tellg();
 			c = m_stream.get();
 			if (c == '*') {
-				token = new Token(Token::Kind::Comment);
+				token = new Token(Token::Kind::Comment, line, pos);
 				word.clear();
 				mcomment = true;
 				continue;
@@ -93,17 +96,20 @@ lex_start:
 			if (c == '/') {
 				lcomment = true;
 				word.clear();
-				token = new Token(Token::Kind::Comment);
+				token = new Token(Token::Kind::Comment, line, pos);
 				continue;
 			}
 			m_stream.seekg(pos);
 		} else if (lcomment && (c == (int)13)) {
+			line++;
 			lcomment = false;
 			INSERT_TOKEN_AND_CLEAR();
 			continue;
 		}
 		
 		if (lcomment || mcomment) {
+			if (c == (int)13)
+				line++;
 			word += c;
 			continue;
 		}
@@ -137,10 +143,10 @@ lex_start:
 		{
 			word = c;
 			if (isalpha(c) || (c == '_') || (c == '^')) {
-				token = new Token(Token::Kind::Identifier);
+				token = new Token(Token::Kind::Identifier, line, pos);
 				continue;
 			} else if (isdigit(c)) {
-				token = new Token(Token::Kind::Number);
+				token = new Token(Token::Kind::Number, line, pos);
 				continue;
 			/*} else if (c == '\'') {
 				token = new Token(Token::Kind::String);
@@ -151,7 +157,7 @@ lex_start:
 /*				token = new Token(Token::Kind::SingleQuote);
 				INSERT_TOKEN_AND_CLEAR();*/
 				word.clear();
-				token = new Token(Token::Kind::String);
+				token = new Token(Token::Kind::String, line, pos);
 				str = true;
 				continue;
 			} else if (c == (int)13) {
@@ -160,7 +166,7 @@ lex_start:
 					if ((lastToken != nullptr) && 
 						(lastToken->kind() != Token::Kind::LineBreak))
 					{
-						token = new Token(Token::Kind::LineBreak);
+						token = new Token(Token::Kind::LineBreak, line, pos);
 						INSERT_TOKEN_AND_CLEAR();						
 					}
 					continue;
@@ -171,12 +177,12 @@ lex_start:
 				c = m_stream.get();
 				if (c == '=') {
 					word += c;
-					token = new  Token(Token::Kind::Equal);
+					token = new  Token(Token::Kind::Equal, line, pos);
 					INSERT_TOKEN_AND_CLEAR();
 					continue;
 				}				
 				m_stream.seekg(pos);
-				token = new Token(Token::Kind::Assign);
+				token = new Token(Token::Kind::Assign, line, pos);
 				INSERT_TOKEN_AND_CLEAR();
 				continue;
 			} else if (c == '!') {
@@ -184,12 +190,12 @@ lex_start:
 				c = m_stream.get();
 				if (c == '=') {
 					word += c;
-					token = new  Token(Token::Kind::Equal);
+					token = new  Token(Token::Kind::Equal, line, pos);
 					INSERT_TOKEN_AND_CLEAR();
 					continue;
 				}
 				m_stream.seekg(pos);
-				token = new Token(Token::Kind::NotEqual);
+				token = new Token(Token::Kind::NotEqual, line, pos);
 				INSERT_TOKEN_AND_CLEAR();
 				continue;
 			} else if (c == '\\') {
@@ -209,7 +215,7 @@ lex_start:
 					}
 				}
 				m_stream.seekg(pos);
-				token = new Token(Token::Kind::Backslash);
+				token = new Token(Token::Kind::Backslash, line, pos);
 				INSERT_TOKEN_AND_CLEAR();
 				continue;
 			}
@@ -237,14 +243,16 @@ lex_start:
 					word += c;
 					continue;
 				}
-				goto lex_new;
+				INSERT_TOKEN_AND_CLEAR();
+				goto lex_start;
 				
 			} else if (kind == Token::Kind::Number) {
 				if (isdigit(c)) {
 					word += c;
 					continue;
 				}
-				goto lex_new;
+				INSERT_TOKEN_AND_CLEAR();
+				goto lex_start;
 			} else if (kind == Token::Kind::String) {
 				if (c == '\'') {
 					str = false;
@@ -257,22 +265,9 @@ lex_start:
 			}
 			
 			
-			/*
-			else if (kind == Token::Kind::String) {
-				word += c;
-				if (c == '\'') {
-					str = false;
-					INSERT_TOKEN_AND_CLEAR();
-				} 
-				continue;
-			}
-			*/
 		}
 
 		continue;
-lex_new:
-		INSERT_TOKEN_AND_CLEAR();
-		goto lex_start;		
 	}
 	
 	if (token != nullptr) {

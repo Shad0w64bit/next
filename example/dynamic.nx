@@ -1,0 +1,30 @@
+use Std\String
+
+func test(
+	[str, i32] arg1 // May be [str or i32]
+	arg2
+	dyn arg3	// Each argument function is a dymanic container {Type, Data}
+) {
+	(arg1 === str) 
+		? printf( '%s', (str) arg1 ) 
+		: printf( '%d', (i32) arg1 );
+	
+	io('Arg2: {arg2}\n')
+	
+	if (arg3 === str)
+	{
+		printf( 'Arg3: %s', (str) arg3 )
+	} else if (arg3 === i32) {
+		printf( 'Arg3: %d', (i32) arg3 )
+	} else {
+		printf( 'Arg3: Unknown' )
+	}
+
+}
+
+func main()
+{
+	test("String", 555)
+	test(123, 456)
+	test(111, "2516")
+}

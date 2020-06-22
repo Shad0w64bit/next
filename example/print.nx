@@ -1,0 +1,26 @@
+func test1()
+{
+	i32 a,b
+	io("Input A: [a]")			// Input A: 12
+	io("Input B: [b:i32]")		// Input B: 26
+	io("Result: {a}+{b}={a+b}") // Result: 12+26=38
+}
+
+func test2()
+{
+	str s1 = "kl"
+	i32 i1 = 10;
+	io("{!s1} and {!i1}")	// String "s1" = "kl" and i32 "i1" = 10
+	
+	obj o1 = {
+		name = "Logic"
+		p1 = 50
+	}
+	io("{!o1}") // Object "o1" = { String "name" = "Logic", i32 p1 = 50 }
+}
+
+func main()
+{
+	test1();
+}
+

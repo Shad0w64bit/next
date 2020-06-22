@@ -77,12 +77,12 @@ void exportLexemToFile(std::vector<Token*>& tokens, const char* file)
 	for (auto it=tokens.begin(); it != tokens.end(); ++it)
 	{
 		auto kind = (*it)->kind();
-		f << kind << "\t" << ((kind != Token::Kind::LineBreak)?(*it)->get():"#13") << std::endl;
+		f << (*it)->line() << "," << (*it)->pos() << ": "<<  kind << "\t" << ((kind != Token::Kind::LineBreak)?(*it)->get():"#13") << std::endl;
 	}
 	f.close();
 }
 
-#include "core\operations.h"
+#include "..\core\operations.h"
 #define PRINT_OFFSET(n) { for (int i=0; i < (offset+n); i++) { f << "\t"; } }
 
 void printCodeblock(std::ofstream& f, Namespace* ns, Codeblock* cb, int offset = 0)
@@ -225,7 +225,7 @@ void printNamespace(std::ofstream& f, Namespace* ns) {
 	}
 };
 
-#include "analyzer\parser.h"
+#include "..\analyzer\parser.h"
 
 void dumpToFile(Parser* pars, const char* file)
 {

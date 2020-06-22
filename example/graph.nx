@@ -1,0 +1,20 @@
+
+q0 
+	\w\d > q1 {atext}
+q1 
+	\w\d > q1 {atext}
+	.	 > q2
+	@	 > q3
+q2
+	\w\d > q1 {atext}
+q3 
+	\w\d > q4 {alnum}
+q4
+	\w\d > q4 {alnum}
+	.-	 > q5 {alnum}
+	EOL  > q6
+q5
+	\w\d > q4 {alnum}
+	-	 > q5 {alnum}
+q6
+	END

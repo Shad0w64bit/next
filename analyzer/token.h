@@ -46,7 +46,12 @@ public:
 		Modificator,
 	};
 	
-	Token(Kind kind): m_kind(kind) {}
+	Token(Kind kind, unsigned int line, unsigned int pos)
+		: m_kind(kind)
+	{
+		m_line = line;
+		m_pos = pos;
+	}
 	
 	bool is(Kind kind) { return m_kind == kind; } 
 	void setKind(Kind kind) { m_kind = kind; }
@@ -55,9 +60,14 @@ public:
 	const char* get() { return m_lexem; }
 	void set(char* lexem) { m_lexem = lexem; }
 	
+	unsigned int pos() { return m_pos; }
+	unsigned int line() { return m_line; }
 	
-private:
+	
+protected:
 	Kind		 m_kind;
+	unsigned int m_pos;
+	unsigned int m_line;
 	const char*	 m_lexem = nullptr;
 	
 };

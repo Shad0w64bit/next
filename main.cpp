@@ -4,12 +4,13 @@
 
 unsigned int MAX_STACK_SIZE = 4;
 
+#include "utils/logger.h"
 #include "analyzer/token.h"
 #include "analyzer/lexer.h"
 #include "analyzer/parser.h"
 #include "builder/linker.h"
-#include "arguments.h"
-#include "utils.h"
+#include "utils/arguments.h"
+#include "utils/utils.h"
 
 void printHelp()
 {
@@ -31,7 +32,12 @@ int main()
 	if (args.is("-h") || args.is("--help")) {
 		printHelp();
 		return 0;
-	}	
+	}
+
+	if (args.is("-e")) { // Log file
+		const char* log = args.get("-e"); // Get Log file
+		Logger::start(log, true);
+	}
 	
 	const char* f = args.get("-i"); // Get Input File
 	
