@@ -44,6 +44,7 @@ public:
 		NewClass,
 		NewObject,
 		Modificator,
+		HashSign, // #
 	};
 	
 	Token(Kind kind, unsigned int line, unsigned int pos)

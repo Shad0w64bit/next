@@ -61,8 +61,21 @@ public:
 			{
 				while ( ((*it)->kind() == Token::Kind::Keyword) ||
 						((*it)->kind() == Token::Kind::Identifier) ||
-						((*it)->kind() == Token::Kind::Comma) )
+						((*it)->kind() == Token::Kind::Comma) ||
+						((*it)->kind() == Token::Kind::LeftSquare) )
 				{
+					if ((*it)->kind() == Token::Kind::LeftSquare) {
+						it++;
+						if ((*it)->kind() == Token::Kind::Number) {
+							it++;
+							if ((*it)->kind() == Token::Kind::RightSquare)
+							{
+								it++;
+								continue;
+							}
+						}
+						return false;
+					}
 					it++;
 				}
 				

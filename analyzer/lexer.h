@@ -142,7 +142,7 @@ lex_start:
 		if (token == nullptr)
 		{
 			word = c;
-			if (isalpha(c) || (c == '_') || (c == '^')) {
+			if (isalpha(c) || (c == '_') || (c == '&')) {
 				token = new Token(Token::Kind::Identifier, line, pos);
 				continue;
 			} else if (isdigit(c)) {
@@ -232,7 +232,9 @@ lex_start:
 			TEST_CHAR('{', LeftCurly)
 			TEST_CHAR('}', RightCurly)
 			TEST_CHAR(',', Comma)
+			TEST_CHAR(':', Colon)
 			TEST_CHAR(';', Semicolon)
+			TEST_CHAR('#', HashSign)
 //			TEST_CHAR((int)13, LineBreak)
 			
 		} else { // Secondary

@@ -51,6 +51,7 @@ std::ostream& operator<<(std::ostream& os, const Token::Kind& kind) {
 		"NewClass",
 		"NewObject",
 		"Modificator",
+		"HashSign",
   };
   return os << names[static_cast<int>(kind)];
 }

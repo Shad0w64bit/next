@@ -1,0 +1,19 @@
+impl From<str> to PChar {
+	func from(item: str): PChar
+	{
+		ret &(item).conv(ASCII)
+	}
+	
+	func from(item: str): PWideChar
+	{
+		ret &(item).conv(UTF16_LE)
+	}
+}
+
+func main()
+{
+	let str: str = 'Hello 🦀'
+	MessageBoxA(0, str, str, 64)
+	MessageBoxW(0, str, str, 64)
+	ExitProcess(0)
+}

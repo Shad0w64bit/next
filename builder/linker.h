@@ -14,6 +14,7 @@
 class Linker
 {
 public:
+
 	Linker(Parser* pars, const char* ns, const char* mainFunc)
 	{
 		int sz = strlen(ns)+1;
@@ -25,6 +26,7 @@ public:
 		memcpy(m_main, mainFunc, sz);
 		
 		m_parser = pars;
+		m_env = Builder::AppEnvironment::Console;
 	}
 	
 	~Linker()
@@ -36,6 +38,8 @@ public:
 	void build(const char* fn)
 	{
 		Builder builder (Builder::AppType::App64);
+		
+		builder.setEnvironment(m_env);
 		
 		CodeSection* cs = new CodeSection(".text");
 		ImportSection* is = new ImportSection(".idata");	
@@ -319,11 +323,18 @@ public:
 		}
 		m_cs->add( new AsmCommand(ASM_CMD::RET) );
 	}
+	
+	void setEnvironment(Builder::AppEnvironment env)
+	{
+		m_env = env;		
+	}
 
 private:
 	Parser* m_parser;
 	char* m_main;
 	char* m_namespace;
+	
+	Builder::AppEnvironment m_env;
 	
 	CodeSection* m_cs;
 	ImportSection* m_is;

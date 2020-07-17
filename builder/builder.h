@@ -14,8 +14,14 @@ public:
 		App64,
 	};
 	
+	enum AppEnvironment {
+		GUI = 2,
+		Console = 3,
+	};
+	
 	Builder(AppType type)
 	{
+		m_env = AppEnvironment::Console;
 		m_type = type;
 		m_dos_header.e_magic  = 0x5a4d;	// MZ
 		m_dos_header.e_cblp = 0x80;
@@ -121,10 +127,16 @@ public:
 		
 		return sz + tail;
 	}
+	
+	void setEnvironment(AppEnvironment env)
+	{
+		m_env = env;
+	}
 
 private:
 	std::vector<Section*> m_sections;
 	AppType m_type;
+	AppEnvironment m_env;
 	
 	IMAGE_DOS_HEADER m_dos_header = {};
 	char* m_pe_header;
@@ -146,7 +158,7 @@ private:
 		header->OptionalHeader.MinorSubsystemVersion = 2;
 		header->OptionalHeader.MajorOperatingSystemVersion = 5;
 		header->OptionalHeader.MinorOperatingSystemVersion = 2;
-		header->OptionalHeader.Subsystem = 3; // 2 - Windows GUI; 3 - Console
+		header->OptionalHeader.Subsystem = m_env; // 2 - Windows GUI; 3 - Console
 		header->OptionalHeader.FileAlignment = 0x200;
 		header->OptionalHeader.SectionAlignment = 0x1000;
 		header->OptionalHeader.ImageBase = 0x400000;
@@ -243,7 +255,7 @@ private:
 		
 		
 		f.close();
-	}
+	}	
 	
 };
 

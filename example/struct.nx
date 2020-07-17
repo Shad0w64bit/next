@@ -1,0 +1,54 @@
+// Common header
+namespace Common
+
+typedef u32 Color
+
+
+// lib Test1
+namespace Test1
+
+use Common\Color
+
+struct Dog
+{
+	name: str
+	age: u8
+	color: Color
+	kind: bool
+}
+
+
+// lib Test2
+namespace Test2
+
+use Common\Color
+
+struct Dog
+{
+	name: str
+	age: u8
+	color: Color
+	hunting: bool
+}
+
+// Program
+
+namespace Program
+
+func main()
+{
+	Test1\Dog:struct dogKind = {
+		name: "Sobaken"
+		age: 2
+		color: 0x429BF5
+		kind: true
+	}
+	
+	Test2\Dog dogHunt = {
+		name: "Zloy"
+		age: 4
+		hunting: true
+	}
+	
+	// dogHunt color must be zero, because at least one field is filled
+}

@@ -20,7 +20,8 @@ void printHelp()
 		<< "\t-i <in:filename>\tSource file\n"
 		<< "\t-l <out:filename>\tFile with lexem\n"
 		<< "\t-d <out:filename>\tDump internal tables\n"
-		<< "\t-o <out:filename>\tProgram output file\n";
+		<< "\t-o <out:filename>\tProgram output file\n"
+		<< "\t--type <in:gui/console>\tProgram type\n";
 }
 
 int main()
@@ -85,9 +86,25 @@ int main()
 	
 	Linker link (&pars, "Program", "main");	
 	
+	if (args.is("--type")) { 
+		const char* env = args.get("--type");
+		if (strcmp(env, "gui") == 0 || strcmp(env, "GUI") == 0)
+		{
+			link.setEnvironment(Builder::AppEnvironment::GUI);
+		} else if (strcmp(env, "Console") == 0 || strcmp(env, "console") == 0 || strcmp(env, "con") == 0 || strcmp(env, "term") == 0)
+		{
+			link.setEnvironment(Builder::AppEnvironment::Console);
+		} else {
+			std::cerr << "Unknown argument --type is \"" << env << "\" must be GUI or Console."	<< std::endl;
+			return -1;
+		}
+		
+	}
+	
 
 	if (args.is("-o")) { // Output binary file
 		const char* f = args.get("-o");
+		// TODO: if the target directory does not exist, create it	
 		link.build(f);
 	} else {		
 		char* of = (char*)malloc(strlen(f) + 4 + 1);
