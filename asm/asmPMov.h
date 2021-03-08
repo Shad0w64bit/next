@@ -1,3 +1,7 @@
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include "asmTemplate.h"
 #include "asmType.h"
 #include "../builder/dataSection.h"
@@ -82,7 +86,7 @@ public:
 				f.write(&pref16, 1);
 			}
 			
-			BYTE prefix = 0x40;
+			uint8_t prefix = 0x40;
 			if (ex1->len == 8) 			{ prefix |= (1 << 3); }
 			if (ex1->rex == REX::Ex)	{ prefix |= 0x01; 	  }
 			
@@ -90,7 +94,7 @@ public:
 				f.write((char*) &prefix, 1);
 			}
 			
-			BYTE op[2] = {0xC7, 0x80};
+			uint8_t op[2] = {0xC7, 0x80};
 			op[1] |= ex1->data;
 			
 			f.write((char*) &op, 2);
@@ -128,7 +132,7 @@ public:
 				f.write(&pref16, 1);
 			}
 			
-			BYTE prefix = 0x40;
+			uint8_t prefix = 0x40;
 			if (ex3->len == 8) 			{ prefix |= (1 << 3); }
 			if (ex1->rex == REX::Ex)	{ prefix |= 0x01; 	  }
 			if (ex3->rex == REX::Ex)	{ prefix |= (1 << 2); }
@@ -138,7 +142,7 @@ public:
 				f.write((char*) &prefix, 1);
 			}
 			
-			BYTE op[2] = {0x89, 0x80};
+			uint8_t op[2] = {0x89, 0x80};
 			
 			op[1] |= (ex3->data << 3);
 			op[1] |= ex1->data;
@@ -181,7 +185,7 @@ public:
 			RegEnum reg = (RegEnum) m_op1->data;
 			auto ex = r.get(reg);
 		
-			BYTE op[3] = {0xC6, 0x40, 0x24};
+			uint8_t op[3] = {0xC6, 0x40, 0x24};
 		
 			if (m_op2->len == 4)
 				op[1] += 0x40;
@@ -212,7 +216,7 @@ public:
 				f.write((char*) &m_op3->data, m_op3->len);			
 			} else if (m_op3->type == AsmType::RData) {			
 				Data* d = (Data*)m_op3->data;
-				QWORD off = d->vaOffset();
+				uint64_t off = d->vaOffset();
 				f.write((char*) &off, sizeof(DWORD) );				
 			}
 		} else*/
@@ -258,7 +262,7 @@ public:
 				}
 			}			
 			{
-				BYTE op[2] = {0x8A, 0x40};
+				uint8_t op[2] = {0x8A, 0x40};
 				
 				if (m_op3->len == 4)
 				{

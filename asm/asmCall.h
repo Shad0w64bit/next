@@ -1,6 +1,12 @@
 #ifndef __ASM_CALL_H__
 #define __ASM_CALL_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#elif _WIN32
+#endif
+
+
 #include "asmTemplate.h"
 #include "asmType.h"
 #include "../builder/importSection.h"
@@ -33,7 +39,7 @@ public:
 			
 			int cmd_end = offset + reserve();
 			int lib_offset = func->address() - cmd_end;
-			f.write( (char*) &lib_offset, sizeof(DWORD) );
+			f.write( (char*) &lib_offset, sizeof(uint32_t) );
 		}
 
 		return 5;

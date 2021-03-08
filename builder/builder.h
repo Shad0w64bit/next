@@ -1,7 +1,11 @@
 #ifndef __BUILDER_H__
 #define __BUILDER_H__
 
+#ifdef __unix__
+#include "../platform/windows/include.h"
+#elif _WIN32
 #include <windows.h>
+#endif
 #include <vector>
 
 #include "section.h"
@@ -13,12 +17,12 @@ public:
 		App32,
 		App64,
 	};
-	
+
 	enum AppEnvironment {
 		GUI = 2,
 		Console = 3,
 	};
-	
+
 	Builder(AppType type)
 	{
 		m_env = AppEnvironment::Console;
@@ -32,12 +36,12 @@ public:
 		m_dos_header.e_sp = 0x0140;
 		m_dos_header.e_lfarlc = 0x40;
 		m_dos_header.e_lfanew = 0x80;		// Start PE-Header
-		
+
 		if (type == Builder::AppType::App64)
 		{
 			m_pe_header = (char*) malloc( sizeof(IMAGE_NT_HEADERS64) );
 			memset((char*) m_pe_header, 0, sizeof(IMAGE_NT_HEADERS64));
-			
+
 			auto header = ((IMAGE_NT_HEADERS64*)m_pe_header);
 			header->Signature = 0x4550;	// PE
 			header->FileHeader.Machine = IMAGE_FILE_MACHINE_AMD64;
@@ -47,13 +51,13 @@ public:
 													IMAGE_FILE_EXECUTABLE_IMAGE | // Executable file
 													IMAGE_FILE_LINE_NUMS_STRIPPED |
 													IMAGE_FILE_LOCAL_SYMS_STRIPPED |
-													IMAGE_FILE_LARGE_ADDRESS_AWARE); 
-			
+													IMAGE_FILE_LARGE_ADDRESS_AWARE);
+
 			header->OptionalHeader.Magic = 0x020b; //64-bit optional header
 			header->OptionalHeader.NumberOfRvaAndSizes = IMAGE_NUMBEROF_DIRECTORY_ENTRIES;
 		} else {
 			m_pe_header = (char*) malloc( sizeof(IMAGE_NT_HEADERS64) );
-			
+
 			auto header = ((IMAGE_NT_HEADERS32*)m_pe_header);
 			header->Signature = 0x4550;	// PE
 			header->FileHeader.Machine = IMAGE_FILE_MACHINE_I386;
@@ -63,13 +67,13 @@ public:
 													IMAGE_FILE_EXECUTABLE_IMAGE | // Executable file
 													IMAGE_FILE_LINE_NUMS_STRIPPED |
 													IMAGE_FILE_LOCAL_SYMS_STRIPPED |
-													IMAGE_FILE_32BIT_MACHINE); 
-			
+													IMAGE_FILE_32BIT_MACHINE);
+
 			header->OptionalHeader.Magic = 0x010b; // 32-bit optional header
 			header->OptionalHeader.NumberOfRvaAndSizes = IMAGE_NUMBEROF_DIRECTORY_ENTRIES;
 		}
 
-		
+
 	}
 
 	~Builder()

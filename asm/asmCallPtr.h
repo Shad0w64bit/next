@@ -1,6 +1,10 @@
 #ifndef __ASM_CALL_PTR_H__
 #define __ASM_CALL_PTR_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include "asmTemplate.h"
 #include "asmType.h"
 #include "../builder/importSection.h"
@@ -18,7 +22,7 @@ public:
 	
 	int write(std::ofstream& f, int offset, int va) override
 	{
-		BYTE op[2] = {0xFF, 0x15};
+		uint8_t op[2] = {0xFF, 0x15};
 		f.write((char*) &op, 2);
 		
 		if (m_op1->type == AsmType::Library) {
@@ -29,7 +33,7 @@ public:
 			
 			int cmd_end = va + offset + reserve();
 			int lib_offset = lib->offsetIAT - cmd_end;
-			f.write( (char*) &lib_offset, sizeof(DWORD) );
+			f.write( (char*) &lib_offset, sizeof(uint32_t) );
 		} 
 		
 		return 6;

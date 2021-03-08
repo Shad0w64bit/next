@@ -1,21 +1,25 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include <vector>
 
-#include "..\core\namespace.h"
-#include "..\core\typedef.h"
-#include "..\core\operations.h"
+#include "../core/namespace.h"
+#include "../core/typedef.h"
+#include "../core/operations.h"
 #include "token.h"
 
 class Parser
 {
 public:
-	Parser(std::vector<Token*>& tokens) 
+	Parser(std::vector<Token*>& tokens)
 	{
 		m_tokens = &tokens;
 	}
-	
+
 	bool parse()
 	{
 //		Function* func = nullptr;
@@ -32,14 +36,14 @@ public:
 				it = parseImportFunction(it, curNS);
 			} else if (testFunction(it)) {
 				it = parseFunction(it, curNS);
-			} 
+			}
 
-		}	
-		
-		
+		}
+
+
 		return true;
 	}
-	
+
 	bool testNamespace(std::vector<Token*>::iterator it)
 	{
 		if (strcmp( (*it)->get(), "namespace" ) == 0)
@@ -50,13 +54,13 @@ public:
 		}
 		return false;
 	}
-	
+
 	bool testVariable(std::vector<Token*>::iterator it)
 	{
 		if ((*it)->kind() == Token::Kind::Type)
 		{
 			it++;
-			
+
 			if ((*it)->kind() == Token::Kind::Identifier)
 			{
 				while ( ((*it)->kind() == Token::Kind::Keyword) ||
@@ -78,7 +82,7 @@ public:
 					}
 					it++;
 				}
-				
+
 				if (((*it)->kind() == Token::Kind::LineBreak) ||
 					((*it)->kind() == Token::Kind::Semicolon) ||
 					((*it)->kind() == Token::Kind::Assign))
@@ -93,17 +97,17 @@ public:
 		}
 		return false;
 	}
-	
+
 	bool testImportFunction(std::vector<Token*>::iterator it)
 	{
-		if ( ((*it)->is(Token::Kind::Keyword) && (strcmp((*it)->get(), "func") == 0)) || 
+		if ( ((*it)->is(Token::Kind::Keyword) && (strcmp((*it)->get(), "func") == 0)) ||
 			 (*it)->is(Token::Kind::Type) )
-		{			
+		{
 			it++;
 			if ((*it)->is(Token::Kind::Identifier)) {
-				
+
 				it++;
-				if ((*it)->is(Token::Kind::LeftParen)) { 
+				if ((*it)->is(Token::Kind::LeftParen)) {
 					it++;
 					while (!(*it)->is(Token::Kind::RightParen) )
 					{
@@ -111,18 +115,18 @@ public:
 						{
 							return false;
 						}
-						
+
 						it++;
 					}
-					
+
 					it++;
-					
+
 					if ((*it)->is(Token::Kind::Keyword) && (strcmp( (*it)->get(), "as") == 0))
 					{
 						it++; // Identifier
 						it++;
 					}
-					
+
 					if ((*it)->is(Token::Kind::LeftSquare))
 					{
 						it++;
@@ -138,24 +142,24 @@ public:
 							}
 						}
 					}
-				
+
 				}
 			}
-			
+
 		}
 		return false;
 	}
-	
+
 	bool testFunction(std::vector<Token*>::iterator it)
 	{
-	if ( ((*it)->is(Token::Kind::Keyword) && (strcmp((*it)->get(), "func") == 0)) || 
+	if ( ((*it)->is(Token::Kind::Keyword) && (strcmp((*it)->get(), "func") == 0)) ||
 			 (*it)->is(Token::Kind::Type) )
-		{			
+		{
 			it++;
 			if ((*it)->is(Token::Kind::Identifier)) {
-				
+
 				it++;
-				if ((*it)->is(Token::Kind::LeftParen)) { 
+				if ((*it)->is(Token::Kind::LeftParen)) {
 					it++;
 					while (!(*it)->is(Token::Kind::RightParen) )
 					{
@@ -163,30 +167,30 @@ public:
 						{
 							return false;
 						}
-						
+
 						it++;
 					}
-					
+
 					it++;
-					
+
 					if ((*it)->is(Token::Kind::Keyword) && (strcmp( (*it)->get(), "as") == 0))
 					{
 						return false;
 					}
-					
+
 					if ((*it)->is(Token::Kind::LeftSquare))
 					{
-						return false;						
+						return false;
 					}
-					
-					return true;				
+
+					return true;
 				}
 			}
-			
+
 		}
 		return false;
 	}
-	
+
 	std::vector<Token*>::iterator parseFunction(std::vector<Token*>::iterator it, Namespace* ns)
 	{
 		Type* ret = ns->types()->getTypeByName( (*it)->get() );
@@ -202,47 +206,47 @@ public:
 					it++;
 					continue;
 				}
-				
+
 				auto next = it;
 				next++;
-				
+
 				if ((*it)->is(Token::Kind::Type) && (*next)->is(Token::Kind::Identifier))
 				{
 					Type* t = ns->types()->getTypeByName( (*it)->get() );
 					f->addArgument( new Variable( (*next)->get(), t ) );
 				}
-				
+
 				it++;
 			}
 			it++;
-			
+
 			while (!(*it)->is(Token::Kind::LeftCurly)) { it++; }
-			
+
 //			it++;
-			
+
 			it = parseCodeblock(it, ns, f->getCodeblock());
-			if (f->getCodeblock()->getMaxStackSize() > MAX_STACK_SIZE) 
-			{					
+			if (f->getCodeblock()->getMaxStackSize() > MAX_STACK_SIZE)
+			{
 				MAX_STACK_SIZE = f->getCodeblock()->getMaxStackSize();
 			}
-//			std::cout << "CB funcArgSize: " << f->getCodeblock()->funcArgSize() << std::endl;			
-				
+//			std::cout << "CB funcArgSize: " << f->getCodeblock()->funcArgSize() << std::endl;
+
 			//it++; // }+
-		/*	
-			while (!(*it)->is(Token::Kind::RightCurly)) { 
-				
+		/*
+			while (!(*it)->is(Token::Kind::RightCurly)) {
+
 				it = parseCodeblock(it, ns, f);
 				if ((*it)->is(Token::Kind::RightCurly))
 					break;
-				
-				it++; 
+
+				it++;
 			}*/
 		}
-		
+
 		ns->addFunction(f);
 		return it;
 	}
-	
+
 	std::vector<Token*>::iterator parseCodeblock(std::vector<Token*>::iterator it, Namespace* ns, Codeblock* f)
 	{
 		it++; // First must be { 		
@@ -260,22 +264,22 @@ public:
 				f->addOperation( new OpCodeblock(l_cb) );
 				it++;
 				continue;
-				
+
 			} else if (testVariable(it)) {
 				//std::cout << "testVariable" << std::endl;
 				it = parseLocalVariables(it, ns, f);
 			} else if (testCallFunction(it)) {
 				parseCallFunction(it, ns, f);
 			}
-			
+
 			++it;
 		}
-		
+
 		return it; // Last must be }
 	}
-	
+
 	bool testCallFunction(std::vector<Token*>::iterator it)
-	{		
+	{
 		if ((*it)->is(Token::Kind::Identifier))
 		{
 //			std::cout << "testCallFunction! " << (*it)->get() << std::endl;
@@ -296,7 +300,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	std::vector<Token*>::iterator parseCallFunction(std::vector<Token*>::iterator it, Namespace* ns, Codeblock* cb)
 	{
 		const char* fname = (*it)->get();
@@ -324,7 +328,7 @@ public:
 						}
 					} else if ((*it)->is(Token::Kind::Number)) {
 						Variable* var = new Variable(nullptr, ns->types()->getTypeByName("~ConstInt"));
-						DWORD num = (DWORD) atoi( (*it)->get() );
+						uint32_t num = (uint32_t) atoi( (*it)->get() );
 						//std::cout << num;
 						var->setData( (char*) &num );
 						args.push_back( var );
@@ -457,13 +461,13 @@ public:
 		}
 		return it;
 	}
-	
+
 	std::vector<Token*>::iterator parseLocalVariables(std::vector<Token*>::iterator it, Namespace* ns, Codeblock* cb)
 	{
 		Type* t = ns->types()->getTypeByName( (*it)->get() );
-		
-		it++; 
-		
+
+		it++;
+
 		if (t != nullptr)
 		{
 			while ( !((*it)->is(Token::Kind::LineBreak) ||
@@ -472,33 +476,33 @@ public:
 			{
 				Variable* var = nullptr;
 				if ((*it)->is(Token::Kind::Identifier))
-				{					
+				{
 					var = new Variable((*it)->get(), t);
 					//std::cout << "Local: " << t->name() << "\t" << (*it)->get() << std::endl;
 					cb->addVariable( var );
-					
+
 					it++;
-					
+
 					if ((var != nullptr) && (!(*it)->is(Token::Kind::Assign)))
 						continue;
-					
+
 					it++;
-				
+
 					if ((*it)->is(Token::Kind::Number)) {
 						int val = atoi((*it)->get());
 //						printf("Assign %s = %d\n", var->name(), val);
-						
+
 						var->setData( (char*) &val );
-					} else if ((*it)->is(Token::Kind::String)) {						
+					} else if ((*it)->is(Token::Kind::String)) {
 						//var->setData( (char*) (*it)->get(), strlen( (*it)->get() ) );
 					}
-				}			
-				++it;					
-			}			
+				}
+				++it;
+			}
 		}
 		return it;
 	}
-	
+
 	Namespace* parseNamespace(std::vector<Token*>::iterator it)
 	{
 		Namespace* curNS = nullptr;
@@ -518,33 +522,33 @@ public:
 								break;
 							}
 						}
-						
+
 						curNS = new Namespace((*it)->get());
 						m_namespaces.push_back(curNS);
 					} else {
 						auto tmpNS = curNS->getNamespace((*it)->get());
-						
+
 						if (tmpNS == nullptr)
 						{
 							tmpNS = new Namespace( (*it)->get() );
 							curNS->addNamespace( tmpNS );
 							curNS = tmpNS;
 						} else {
-							curNS = tmpNS;						
+							curNS = tmpNS;
 						}
 					}
 				}
-				
+
 				it++;
 			}
-			
+
 		}
 		return curNS;
 	}
 
-	
+
 	std::vector<Namespace*>* getNamespaces() { return &m_namespaces; }
-	
+
 	Namespace* getNamespace(const char* name)
 	{
 		for (auto it=m_namespaces.begin(); it!=m_namespaces.end(); ++it)
@@ -552,11 +556,11 @@ public:
 				return (*it);
 		return nullptr;
 	}
-	
+
 private:
 	std::vector<Token*>* m_tokens;
 	std::vector<Namespace*> m_namespaces;
-	
+
 };
 
 #endif

@@ -33,7 +33,7 @@ public:
 			auto ex = r.get(reg);
 			if ((ex->len == 8) && (m_op2->len == 1))
 			{
-				BYTE op[3] = {0x48, 0x83, 0xE8};
+				uint8_t op[3] = {0x48, 0x83, 0xE8};
 				if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 				op[2] |= ex->data;
 				

@@ -1,6 +1,10 @@
 #ifndef __ASM_MOV_H__
 #define __ASM_MOV_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include "asmTemplate.h"
 #include "asmType.h"
 #include "../builder/dataSection.h"
@@ -25,7 +29,7 @@ public:
 			if (vs == 4) { total = 2; }
 			
 //			std::cout << reserve() << std::endl;
-			total += sizeof(DWORD);
+			total += sizeof(uint32_t);
 			
 			if (vs == 1) { total += 1; } else 
 			if (vs == 2) { total += 2; } else 
@@ -42,20 +46,20 @@ public:
 			{				
 				if (m_op2->len > 4)
 				{	
-					total = 2 + sizeof(QWORD);
+					total = 2 + sizeof(uint64_t);
 				} else {					
-					total = 3 + sizeof(DWORD);
+					total = 3 + sizeof(uint32_t);
 				}				
 			} 
 			else if (m_op2->type == AsmType::RData)
 			{				
 				Data* d = (Data*)m_op2->data;
-				QWORD off = d->vaOffset();
+				uint64_t off = d->vaOffset();
 				if (off > 0xFFFFFFFF)
 				{
-					total = 3 + sizeof(QWORD);
+					total = 3 + sizeof(uint64_t);
 				} else {				
-					total = 3 + sizeof(DWORD);
+					total = 3 + sizeof(uint32_t);
 				}
 			}
 			else if (m_op2->type == AsmType::Bss)
@@ -64,7 +68,7 @@ public:
 					if (ex->rex == REX::Ex) {
 						total++;
 					}
-					total += 2 + sizeof(DWORD);					
+					total += 2 + sizeof(uint32_t);					
 				}
 			} 
 			else if (m_op2->type == AsmType::Register)
@@ -102,7 +106,7 @@ public:
 			//auto v = (Variable*) m_op1->data;
 			//auto v = (Data*) m_op1->data;
 			return 2 + ((m_op2->len == 2) ? 1 : 0)
-				+ sizeof(DWORD) + m_op2->len;
+				+ sizeof(uint32_t) + m_op2->len;
 			
 		}
 		
@@ -135,9 +139,9 @@ public:
 		{			
 			if (m_op2->len > 4)
 			{
-				return 2 + sizeof(QWORD);				
+				return 2 + sizeof(uint64_t);				
 			} else {
-				return 3 + sizeof(DWORD);
+				return 3 + sizeof(uint32_t);
 			}				
 		}
 		
@@ -183,7 +187,7 @@ public:
 //			std::cout << reserve() << std::endl;
 			int cmd_end = offset + reserve() + va;
 			int var_offset = var->offset() - cmd_end;
-			f.write( (char*) &var_offset, sizeof(DWORD) );
+			f.write( (char*) &var_offset, sizeof(uint32_t) );
 			
 			if (vs == 1) { f.write( (char*) &m_op2->data, 1); } else 
 			if (vs == 2) { f.write( (char*) &m_op2->data, 2); } else 
@@ -200,43 +204,43 @@ public:
 			{				
 				if (m_op2->len > 4)
 				{
-					BYTE op[2] = {0x48, 0xB8};
+					uint8_t op[2] = {0x48, 0xB8};
 					
 					if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 					op[1] |= ex->data;
 					
 					f.write((char*)&op, 2);					
-					f.write((char*) &m_op2->data, sizeof(QWORD) );
+					f.write((char*) &m_op2->data, sizeof(uint64_t) );
 				} else {
-					BYTE op[3] = {0x48, 0xC7, 0xC0};
+					uint8_t op[3] = {0x48, 0xC7, 0xC0};
 					
 					if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 					op[2] |= ex->data;
-					DWORD i = m_op2->data;
+					uint32_t i = m_op2->data;
 //					std::cout << "Core: " << i << std::endl;
 					f.write((char*)&op, 3);
-					f.write((char*) &i, sizeof(DWORD) );
+					f.write((char*) &i, sizeof(uint32_t) );
 				}				
 			} 
 			else if (m_op2->type == AsmType::RData)
 			{
 				Data* d = (Data*)m_op2->data;
-				QWORD off = d->vaOffset();
+				uint64_t off = d->vaOffset();
 				if (off > 0xFFFFFFFF)
 				{
-					BYTE op[2] = {0x48, 0xBA};
+					uint8_t op[2] = {0x48, 0xBA};
 					if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 					op[1] |= ex->data;
 					
 					f.write((char*)&op, 3);
-					f.write((char*) &off, sizeof(QWORD) );					
+					f.write((char*) &off, sizeof(uint64_t) );					
 				} else {				
-					BYTE op[3] = {0x48, 0xC7, 0xC0};
+					uint8_t op[3] = {0x48, 0xC7, 0xC0};
 					if (ex->rex == REX::Ex)	{ op[0] |= 0x01; }
 					op[2] |= ex->data;
 					
 					f.write((char*)&op, 3);
-					f.write((char*) &off, sizeof(DWORD) );
+					f.write((char*) &off, sizeof(uint32_t) );
 				}
 			}
 			else if (m_op2->type == AsmType::Bss)
@@ -245,7 +249,7 @@ public:
 					if (ex->rex == REX::Ex) {
 						f.write("\x44", 1);
 					}
-					BYTE op[2] = {0x8B, 0x05};
+					uint8_t op[2] = {0x8B, 0x05};
 					op[1] |= (ex->data << 3);
 					
 					f.write((char*)&op, 2);
@@ -253,7 +257,7 @@ public:
 					auto var = (Variable*) m_op2->data;
 					int cmd_end = offset + reserve() + va;
 					int var_offset = var->offset() - cmd_end;
-					f.write( (char*) &var_offset, sizeof(DWORD) );
+					f.write( (char*) &var_offset, sizeof(uint32_t) );
 				}
 				
 				
@@ -268,7 +272,7 @@ public:
 					
 				char pref16 = 0x66;
 				char prefix = (ex1->len == 8) ? 0x48 : 0x40;
-				BYTE op[2] = {0x88, 0xC0};					
+				uint8_t op[2] = {0x88, 0xC0};					
 				
 				op[1] |= ex1->data;
 				if (ex1->rex == REX::Ex)

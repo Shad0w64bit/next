@@ -2,7 +2,7 @@
 #define __BSS_SECTION_H__
 
 #include "section.h"
-#include "..\core\variable.h"
+#include "../core/variable.h"
 
 class BssSection: public Section
 {

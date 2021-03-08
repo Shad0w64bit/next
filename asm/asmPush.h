@@ -9,12 +9,12 @@ class AsmPush: public AsmTemplate
 public:
 	AsmPush(Operand* op1)
 		: AsmTemplate(ASM_CMD::PUSH, op1) {}
-	
+
 	int reserve() override
 	{
 		if (m_op1->type == AsmType::Constant)
 		{
-			return ((unsigned int)&m_op1->data <= 0xFF) ? 1 + 1 : 1 + 4; 
+			return ((uint32_t)&m_op1->data <= 0xFF) ? 1 + 1 : 1 + 4; // ALERT
 		} else if (m_op1->type == AsmType::Register) {
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;
@@ -23,19 +23,19 @@ public:
 		}
 		return 0;
 	}
-	
+
 	int write(std::ofstream& f, int offset, int va) override
 	{
 		offset = offset + 1; // Nothing
 		va = va + 1;
-		
+
 		if (m_op1->type == AsmType::Constant)
 		{
 			if ((unsigned int) &m_op1->data > 0xFF)
 			{
 				char op = 0x6A;
 				f.write((char*) &op, 1);
-				f.write((char*) &m_op1->data, 1);								
+				f.write((char*) &m_op1->data, 1);
 				return 2;
 			} else {
 				char op = 0x68;
@@ -43,37 +43,37 @@ public:
 				f.write((char*) &m_op1->data, 4);
 				return 5;
 			}
-			
-		} 
-		else if (m_op1->type == AsmType::Register) 
+
+		}
+		else if (m_op1->type == AsmType::Register)
 		{
 			Reg r;
 			RegEnum reg = (RegEnum) m_op1->data;
 			auto ex = r.get(reg);
-			
+
 			int total = 0;
-			if (ex->len == 2) { 
+			if (ex->len == 2) {
 				char c = 0x66;
 				f.write(&c, 1);
-				total++; 
+				total++;
 			}
-			
+
 			if (ex->rex == REX::Ex) {
 				char c = 0x41;
 				f.write(&c, 1);
 				total++;
-			} 
-			
+			}
+
 			char op = 0x50;
 			op |= ex->data;
 			f.write(&op, 1);
-			total++;			
+			total++;
 			return total;
 		}
-		
+
 		return 0;
 	}
-	
+
 };
 
 #endif

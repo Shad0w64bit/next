@@ -100,7 +100,7 @@ lex_start:
 				continue;
 			}
 			m_stream.seekg(pos);
-		} else if (lcomment && (c == (int)13)) {
+		} else if (lcomment && (c == (int)10)) {
 			line++;
 			lcomment = false;
 			INSERT_TOKEN_AND_CLEAR();
@@ -108,7 +108,7 @@ lex_start:
 		}
 		
 		if (lcomment || mcomment) {
-			if (c == (int)13)
+			if (c == (int)10)
 				line++;
 			word += c;
 			continue;
@@ -137,7 +137,7 @@ lex_start:
 			escape = false;
 			continue;
 		}
-		
+
 		// First init
 		if (token == nullptr)
 		{
@@ -160,14 +160,14 @@ lex_start:
 				token = new Token(Token::Kind::String, line, pos);
 				str = true;
 				continue;
-			} else if (c == (int)13) {
+			} else if (c == (int)10) {
 				line++;
 				if (!escape) {
-					if ((lastToken != nullptr) && 
+					if ((lastToken != nullptr) &&
 						(lastToken->kind() != Token::Kind::LineBreak))
 					{
 						token = new Token(Token::Kind::LineBreak, line, pos);
-						INSERT_TOKEN_AND_CLEAR();						
+						INSERT_TOKEN_AND_CLEAR();
 					}
 					continue;
 				}
@@ -180,7 +180,7 @@ lex_start:
 					token = new  Token(Token::Kind::Equal, line, pos);
 					INSERT_TOKEN_AND_CLEAR();
 					continue;
-				}				
+				}
 				m_stream.seekg(pos);
 				token = new Token(Token::Kind::Assign, line, pos);
 				INSERT_TOKEN_AND_CLEAR();
@@ -200,13 +200,13 @@ lex_start:
 				continue;
 			} else if (c == '\\') {
 				auto pos = m_stream.tellg();
-				m_stream.seekg(-2, std::ios_base::cur);				
+				m_stream.seekg(-2, std::ios_base::cur);
 				c = m_stream.get();
 				if ((c == ' ') || (c == (int)9))
 				{
 					c = m_stream.get();
 					c = m_stream.get();
-					if (c == (int)13)
+					if (c == (int)10)
 					{
 						line++;
 						word.clear();

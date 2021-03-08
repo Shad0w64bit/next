@@ -1,6 +1,10 @@
 #ifndef __FUNCTION_H__
 #define __FUNCTION_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include <vector>
 
 #include "codeblock.h"
@@ -113,9 +117,9 @@ public:
 	const char* getLibrary() { return m_lib; }
 	Codeblock* getCodeblock() { return &m_codeblock; };
 	
-	DWORD address() { return m_address + m_offset; }
-	void setVA(DWORD address) { m_address = address; }
-	void setOffset(DWORD offset) { m_offset = offset; }
+	uint32_t address() { return m_address + m_offset; }
+	void setVA(uint32_t address) { m_address = address; }
+	void setOffset(uint32_t offset) { m_offset = offset; }
 	
 private:
 	char* m_name;
@@ -125,8 +129,8 @@ private:
 //	char* m_func;
 	Variable* m_ret;
 	//std::vector<Variable*> m_args;
-	DWORD m_offset = 0;
-	DWORD m_address = 0;
+	uint32_t m_offset = 0;
+	uint32_t m_address = 0;
 };
 
 #endif

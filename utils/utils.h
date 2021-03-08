@@ -1,7 +1,12 @@
 #ifndef _UTILS
 #define _UTILS
 
+#ifdef __unix__
+#include <stdint.h>
+#include <unistd.h>
+#elif _WIN32
 #include <io.h>
+#endif
 
 bool FileExists(const char *fname)
 {
@@ -83,7 +88,7 @@ void exportLexemToFile(std::vector<Token*>& tokens, const char* file)
 	f.close();
 }
 
-#include "..\core\operations.h"
+#include "../core/operations.h"
 #define PRINT_OFFSET(n) { for (int i=0; i < (offset+n); i++) { f << "\t"; } }
 
 void printCodeblock(std::ofstream& f, Namespace* ns, Codeblock* cb, int offset = 0)
@@ -124,7 +129,7 @@ void printCodeblock(std::ofstream& f, Namespace* ns, Codeblock* cb, int offset =
 					f << " = " << (char*)(*it)->data();
 				}
 			}
-	//			f << " = " << (QWORD)(*it)->data();			
+	//			f << " = " << (uint64_t)(*it)->data();			
 			f << std::endl;
 		}
 	}
@@ -147,7 +152,7 @@ void printCodeblock(std::ofstream& f, Namespace* ns, Codeblock* cb, int offset =
 				if ((*arg)->name() == nullptr) {
 					//std::cout << (*arg)->type()->name << std::endl;
 					if (strcmp( (*arg)->type()->name, "~ConstInt") == 0) {
-						f << (DWORD)(*((*arg)->data())) << ((c == args->size()) ? "" : ", ");
+						f << (uint32_t)(*((*arg)->data())) << ((c == args->size()) ? "" : ", ");
 					} else if (strcmp( (*arg)->type()->name, "~ConstString") == 0) {
 						f << "'" << (*arg)->data() << "'" << ((c == args->size()) ? "" : ", ");
 					}
@@ -210,7 +215,7 @@ void dumpNamespace(std::ofstream& f, Namespace* ns) {
 		if ((*it)->getLibrary() == nullptr)
 			printCodeblock(f, ns, (*it)->getCodeblock());
 	}
-};
+}
 
 void printNamespace(std::ofstream& f, Namespace* ns) {
 	auto child = ns->getNamespaces();
@@ -224,9 +229,9 @@ void printNamespace(std::ofstream& f, Namespace* ns) {
 		f << ns->name() << "\\";
 		printNamespace( f, (*it) );			
 	}
-};
+}
 
-#include "..\analyzer\parser.h"
+#include "../analyzer/parser.h"
 
 void dumpToFile(Parser* pars, const char* file)
 {

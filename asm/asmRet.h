@@ -10,12 +10,12 @@ class AsmRet: public AsmTemplate
 public:
 	AsmRet()
 		: AsmTemplate(ASM_CMD::RET) {}
-	
+
 	int reserve() override
 	{
 		return 1;
 	}
-	
+
 	int write(std::ofstream& f, int offset, int va) override
 	{
 		offset = offset + 1; // Nothing
@@ -24,7 +24,7 @@ public:
 		f.write(&op, 1);
 		return 1;
 	}
-	
+
 };
 
 #endif

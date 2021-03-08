@@ -1,9 +1,9 @@
 #ifndef __NAMESPACE_H__
 #define __NAMESPACE_H__
 
-#include "..\core\variable.h"
-#include "..\core\function.h"
-#include "..\core\typedef.h"
+#include "../core/variable.h"
+#include "../core/function.h"
+#include "../core/typedef.h"
 
 class Namespace
 {

@@ -1,6 +1,10 @@
 #ifndef __LINKER_H__
 #define __LINKER_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include <ctime>
 #include <vector>
 
@@ -133,9 +137,9 @@ public:
 				
 //		std::cout << "funcArgSize: " << cb->funcArgSize() << std::endl;
 		if (funcStack > 0) {
-			m_cs->add( new AsmCommand(ASM_CMD::PUSH, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP} ) );
-			m_cs->add( new AsmCommand(ASM_CMD::MOV, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP}, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP} ) );			
-			m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD) funcStack } ) ); 
+			m_cs->add( new AsmCommand(ASM_CMD::PUSH, new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RBP} ) );
+			m_cs->add( new AsmCommand(ASM_CMD::MOV, new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RBP}, new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RSP} ) );			
+			m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (uint64_t) funcStack } ) ); 
 		}
 		
 		{ // Define Variables
@@ -156,13 +160,13 @@ public:
 					
 					if ((var->type()->type == IntType::u32) || (var->type()->type == IntType::i32))
 						//int* data = (int*)var->data();
-						op3 = new Operand{ AsmType::Constant, 4, (QWORD) (*( (int*)var->data() )) };
+						op3 = new Operand{ AsmType::Constant, 4, (uint64_t) (*( (int*)var->data() )) };
 					
 					m_cs->add( 
 						new AsmCommand(
 							ASM_CMD::PMOV, 
-							new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP}, 
-							new Operand{AsmType::Offset, 4, (QWORD) var->offset()},
+							new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RBP}, 
+							new Operand{AsmType::Offset, 4, (uint64_t) var->offset()},
 							op3
 						)
 					);
@@ -187,7 +191,7 @@ public:
 //				int paramSize = 0;
 				if (args->size() > 0) {
 //					paramSize = (args->size() > 4) ? args->size() : 4;
-//					m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
+//					m_cs->add( new AsmCommand(ASM_CMD::SUB, new Operand{AsmType::Register, 4, (uint64_t) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (uint64_t)paramSize*8 } ) );
 					
 					int c = 0;
 					auto arg=args->begin();
@@ -199,22 +203,22 @@ public:
 						Operand* op2 = nullptr;
 						Operand* op3 = nullptr;
 						switch(c) {
-							case 0: op1 = new Operand{AsmType::Register, (*arg)->size(), (QWORD) ((*arg)->size() == 1) ? RegEnum::CL : (((*arg)->size() == 2) ? RegEnum::CX : (((*arg)->size() == 4) ? RegEnum::ECX : RegEnum::RCX) )}; break;
-							case 1: op1 = new Operand{AsmType::Register, (*arg)->size(), (QWORD) ((*arg)->size() == 1) ? RegEnum::DL : (((*arg)->size() == 2) ? RegEnum::DX : (((*arg)->size() == 4) ? RegEnum::EDX : RegEnum::RDX) )}; break;
-							case 2: op1 = new Operand{AsmType::Register, (*arg)->size(), (QWORD) ((*arg)->size() == 1) ? RegEnum::R8L : (((*arg)->size() == 2) ? RegEnum::R8W : (((*arg)->size() == 4) ? RegEnum::R8D : RegEnum::R8) )}; break;
-							case 3: op1 = new Operand{AsmType::Register, (*arg)->size(), (QWORD) ((*arg)->size() == 1) ? RegEnum::R9L : (((*arg)->size() == 2) ? RegEnum::R9W : (((*arg)->size() == 4) ? RegEnum::R9D : RegEnum::R9) )}; break;
+							case 0: op1 = new Operand{AsmType::Register, (*arg)->size(), (uint64_t) ((*arg)->size() == 1) ? RegEnum::CL : (((*arg)->size() == 2) ? RegEnum::CX : (((*arg)->size() == 4) ? RegEnum::ECX : RegEnum::RCX) )}; break;
+							case 1: op1 = new Operand{AsmType::Register, (*arg)->size(), (uint64_t) ((*arg)->size() == 1) ? RegEnum::DL : (((*arg)->size() == 2) ? RegEnum::DX : (((*arg)->size() == 4) ? RegEnum::EDX : RegEnum::RDX) )}; break;
+							case 2: op1 = new Operand{AsmType::Register, (*arg)->size(), (uint64_t) ((*arg)->size() == 1) ? RegEnum::R8L : (((*arg)->size() == 2) ? RegEnum::R8W : (((*arg)->size() == 4) ? RegEnum::R8D : RegEnum::R8) )}; break;
+							case 3: op1 = new Operand{AsmType::Register, (*arg)->size(), (uint64_t) ((*arg)->size() == 1) ? RegEnum::R9L : (((*arg)->size() == 2) ? RegEnum::R9W : (((*arg)->size() == 4) ? RegEnum::R9D : RegEnum::R9) )}; break;
 						};
 						
 						
 						if ((*arg)->name() == nullptr) {
 							if ((*arg)->type()->type == IntType::ConstInt) {
-								QWORD dat = (*((*arg)->data()));
+								uint64_t dat = (*((*arg)->data()));
 								op2 = new Operand{AsmType::Constant, 4, dat};
 								// std::cout << "Input: " << dat << std::endl;
 								m_cs->add( new AsmCommand(ASM_CMD::MOV, op1, op2) );
 							} else if ((*arg)->type()->type == IntType::ConstString) {								
 								auto addr = m_ds->add(Data::Type::ConstString, (*arg)->data());
-								op2 = new Operand{AsmType::RData, 4, (QWORD) addr};
+								op2 = new Operand{AsmType::RData, 4, (uint64_t) addr};
 								//std::cout << (*arg)->data() << std::endl;
 								m_cs->add( new AsmCommand(ASM_CMD::MOV, op1, op2) );
 							}
@@ -225,17 +229,17 @@ public:
 							//printf("var %s is %s\n", (*arg)->name(), (((*arg)->type()->type == IntType::i32) || ((*arg)->type()->type == IntType::u32)) ? "true" : "false" );
 							
 							
-							op2 = new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP};							
-							op3 = new Operand{AsmType::Offset, 4, (QWORD) (*arg)->offset()};
+							op2 = new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RBP};							
+							op3 = new Operand{AsmType::Offset, 4, (uint64_t) (*arg)->offset()};
 							m_cs->add( new AsmCommand(ASM_CMD::PMOV, op1, op2, op3) );
 						}						
 						
 													
 						/*if (((*arg)->type()->type == IntType::i32) || ((*arg)->type()->type == IntType::u32))
 						{
-							op2 = new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP};							
+							op2 = new Operand{AsmType::Register, 4, (uint64_t) RegEnum::RSP};							
 							Variable* var = (Variable*)((*arg)->data);
-							op3 = new Operand{AsmType::Constant, 4, (QWORD) var->offset()};
+							op3 = new Operand{AsmType::Constant, 4, (uint64_t) var->offset()};
 							
 							m_cs->add( new AsmCommand(ASM_CMD::PMOV, op1, op2, op3) );
 						}*/
@@ -250,20 +254,20 @@ public:
 						Operand* op3 = nullptr;
 						if ((*arg)->name() == nullptr) {
 							if ((*arg)->type()->type == IntType::ConstInt) {
-								QWORD dat = (*((*arg)->data()));
+								uint64_t dat = (*((*arg)->data()));
 								op3 = new Operand{AsmType::Constant, 4, dat};
 					    		//std::cout << "Dop Input: " << dat << std::endl;
 							} else if ((*arg)->type()->type == IntType::ConstString) {								
 								auto addr = m_ds->add(Data::Type::ConstString, (*arg)->data());
-								op3 = new Operand{AsmType::RData, 4, (QWORD) addr};
+								op3 = new Operand{AsmType::RData, 4, (uint64_t) addr};
 								//std::cout << (*arg)->data() << std::endl;
 							}
 							
-//							op3 = new Operand{AsmType::Constant, 4, (QWORD) (*arg)->offset()};
+//							op3 = new Operand{AsmType::Constant, 4, (uint64_t) (*arg)->offset()};
 							
 							m_cs->add( new AsmCommand(ASM_CMD::PMOV, 
-								new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP}, 
-								new Operand{AsmType::Offset, 4, (QWORD) offset},
+								new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RSP}, 
+								new Operand{AsmType::Offset, 4, (uint64_t) offset},
 								op3));
 							
 							offset += 8;
@@ -274,15 +278,15 @@ public:
 							
 							// mov eax, [rbp+offset]
 							m_cs->add( new AsmCommand(ASM_CMD::PMOV, 
-								new Operand{AsmType::Register, 4, (QWORD) RegEnum::EAX}, 
-								new Operand{AsmType::Register, 4, (QWORD) RegEnum::RBP},
-								new Operand{AsmType::Offset, 4, (QWORD) (*arg)->offset()}
+								new Operand{AsmType::Register, 4, (uint64_t) RegEnum::EAX}, 
+								new Operand{AsmType::Register, 4, (uint64_t) RegEnum::RBP},
+								new Operand{AsmType::Offset, 4, (uint64_t) (*arg)->offset()}
 								) );
 							
 							m_cs->add( new AsmCommand(ASM_CMD::PMOV, 
-								new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP},
-								new Operand{AsmType::Offset, 4, (QWORD) offset},
-								new Operand{AsmType::Register, 4, (QWORD) RegEnum::EAX}
+								new Operand{AsmType::Register, 4, (uint64_t) RegEnum::RSP},
+								new Operand{AsmType::Offset, 4, (uint64_t) offset},
+								new Operand{AsmType::Register, 4, (uint64_t) RegEnum::EAX}
 								) );
 							
 							offset += 8;
@@ -300,26 +304,26 @@ public:
 					m_is->add(func->getLibrary(), func->name(true));
 					auto lfunc = m_is->getFunc(func->getLibrary(), func->name(true));
 					
-					m_cs->add( new AsmCommand(ASM_CMD::CALLPTR, new Operand{AsmType::Library, 4, (QWORD) lfunc}) );
+					m_cs->add( new AsmCommand(ASM_CMD::CALLPTR, new Operand{AsmType::Library, 4, (uint64_t) lfunc}) );
 				} else {
 /*					if (func->address() != 0) {
-						m_cs->add( new AsmCommand(ASM_CMD::CALL, new Operand{AsmType::Pointer, 8, (QWORD) func->address()}) );
+						m_cs->add( new AsmCommand(ASM_CMD::CALL, new Operand{AsmType::Pointer, 8, (uint64_t) func->address()}) );
 					} else {
 					}*/
 					m_releaseFunctions.push_back( func );
-					m_cs->add( new AsmCommand(ASM_CMD::CALL, new Operand{AsmType::Function, 4, (QWORD) func}) );
+					m_cs->add( new AsmCommand(ASM_CMD::CALL, new Operand{AsmType::Function, 4, (uint64_t) func}) );
 				}
 				
 //				if (args->size() > 0) {
-//					m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 4, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD)paramSize*8 } ) );
+//					m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 4, (uint64_t) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (uint64_t)paramSize*8 } ) );
 //				}
 				//std::cout << "CallFunction" << std::endl;
 			}
 		}
 		
 		if (funcStack > 0) {
-			m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (QWORD) funcStack } ) );
-			m_cs->add( new AsmCommand(ASM_CMD::POP, new Operand{AsmType::Register, 8, (QWORD) RegEnum::RBP} ) );
+			m_cs->add( new AsmCommand(ASM_CMD::ADD, new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RSP}, new Operand{AsmType::Constant, 1, (uint64_t) funcStack } ) );
+			m_cs->add( new AsmCommand(ASM_CMD::POP, new Operand{AsmType::Register, 8, (uint64_t) RegEnum::RBP} ) );
 		}
 		m_cs->add( new AsmCommand(ASM_CMD::RET) );
 	}

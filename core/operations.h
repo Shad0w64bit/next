@@ -9,8 +9,8 @@
 #include "variable.h"
 
 
-#include "operations\opCodeblock.h"
-#include "operations\opCallFunction.h"
+#include "operations/opCodeblock.h"
+#include "operations/opCallFunction.h"
 //#include "operations\opAssign.h"
 
 #endif

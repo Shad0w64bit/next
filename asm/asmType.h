@@ -203,7 +203,7 @@ struct Operand
 {
 	AsmType type;
 	int len;
-	QWORD data; // also may store a pointer
+	uint64_t data; // also may store a pointer
 };
 
 enum class ASM_CMD

@@ -1,11 +1,15 @@
-#include <windows.h>
-#include <stdio.h>
-#include <shellapi.h>
+#ifdef __unix__
 
+#elif _WIN32
+#include <windows.h>
+#include <shellapi.h>
+#endif
+#include <stdio.h>
+#include <cstring>
 #include <map>
 #include <vector>
 #include <string>
-#include <shellapi.h>
+
 
 class Argument
 {
@@ -15,7 +19,7 @@ public:
 		m_key = (char*)malloc(sz);
 		memcpy(m_key, key, sz);
 	}
-	
+
 	~Argument() {
 		if (m_key != nullptr)
 			free(m_key);
@@ -25,36 +29,42 @@ public:
 		}
 		m_values.clear();
 	}
-	
+
 	void addValue(char* val)
-	{	
+	{
 		int sz = strlen(val) + 1;
 		char* l_val = (char*)malloc(sz);
 		memcpy(l_val, val, sz);
-		
+
 		m_values.insert(m_values.end(), l_val);
 	}
-	
+
 	const char* getValue()
 	{
+    if (m_values.empty())
+      return nullptr;
 		auto it = m_values.begin();
 		return (*it);
 	}
-	
+
 	bool isKey(const char* key) {
 		return (strcmp(key, m_key) == 0);
 	}
-	
+
 private:
 	char* m_key = nullptr;
 	std::vector<char*> m_values;
 };
 
+
+
+
+
 class Arguments
 {
 public:
-	Arguments(bool init = true);
-	
+	Arguments(int argc, char* argv[]);
+
 	bool is(const char* key);
 	const char* get(const char* key);
 
@@ -82,26 +92,11 @@ const char* Arguments::get(const char* key)
 	return "";
 }
 
-Arguments::Arguments(bool init)
+Arguments::Arguments(int argc, char* argv[])
 {
-	if (!init) return;
-//	std::map<std::string; std::string> args;
-	
-	int argc;
-	LPWSTR* lpArgv = CommandLineToArgvW( GetCommandLineW(), &argc );
-
-	auto argv = (char**)malloc( argc*sizeof(char*) );
-	int size, i = 0;
-	for( ; i < argc; ++i )
-	{
-		size = wcslen( lpArgv[i] ) + 1;
-		argv[i] = (char*)malloc( size );
-		wcstombs( argv[i], lpArgv[i], size );
-	}
-	
 	Argument* last_arg = nullptr;
-	for (i=0; i<argc; ++i)
-	{	
+	for (int i=0; i<argc; ++i)
+	{
 		if (argv[i][0] == '-')
 		{
 			last_arg = new Argument(argv[i]);
@@ -112,11 +107,5 @@ Arguments::Arguments(bool init)
 			}
 		}
 	}
-	
-	i = 0;
-	for( ; i < argc; ++i )
-	free( argv[i] );
-	free( argv );	
-	
-	LocalFree( lpArgv );	
 }
+

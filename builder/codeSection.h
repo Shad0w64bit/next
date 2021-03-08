@@ -1,6 +1,12 @@
 #ifndef __CODE_SECTION_H__
 #define __CODE_SECTION_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#elif _WIN32
+
+#endif
+
 #include "section.h"
 #include "asmCommand.h"
 
@@ -28,7 +34,7 @@ public:
 		m_commands.push_back(cmd);
 	}
 	
-	DWORD curVaOffset()
+	uint32_t curVaOffset()
 	{
 		return m_vaSize;
 	}

@@ -1,6 +1,10 @@
 #ifndef __IMPORT_SECTION_H__
 #define __IMPORT_SECTION_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 #include <vector>
 
 #include "section.h"
@@ -15,9 +19,9 @@ struct Func
 struct ImportFunc
 {
 	Func func;
-	QWORD INT;
-	DWORD offsetIAT;
-	QWORD IAT;
+	uint64_t INT;
+	uint32_t offsetIAT;
+	uint64_t IAT;
 };
 
 class Library
@@ -50,7 +54,7 @@ public:
 			if (strcmp(func, (*it).func.name) == 0)
 				return false;
 		}
-		int sz = ALIGN_UP( (sizeof(WORD) + strlen(func) + 1), 4);
+		int sz = ALIGN_UP( (sizeof(uint16_t) + strlen(func) + 1), 4);
 		char* d = (char*) malloc(sz);
 		memset(d, 0, sz);
 		strcpy(d+2, func);
@@ -149,20 +153,20 @@ public:
 			
 			auto functions = (*lib)->getFunctions();
 			
-			offset += (functions->size() + 1) * sizeof(QWORD); // INT
+			offset += (functions->size() + 1) * sizeof(uint64_t); // INT
 			head->FirstThunk = offset;
-			DWORD baseOffset = offset;
-			offset += (functions->size() + 1) * sizeof(QWORD); // IAT
+			uint32_t baseOffset = offset;
+			offset += (functions->size() + 1) * sizeof(uint64_t); // IAT
 			
 			// std::cout << "Lib: " << offset << std::endl;
 			for (auto func=functions->begin(); func!=functions->end(); ++func)
 			{
 				(*func).offsetIAT = baseOffset;
-				baseOffset += sizeof(QWORD);
+				baseOffset += sizeof(uint64_t);
 				
 				(*func).INT = offset;
 				(*func).IAT = offset;
-				offset += ALIGN_UP( (strlen( (*func).func.name ) + 1 + sizeof(WORD)), 4);
+				offset += ALIGN_UP( (strlen( (*func).func.name ) + 1 + sizeof(uint16_t)), 4);
 			}			
 		}
 		
@@ -214,24 +218,24 @@ public:
 		for (auto lib=m_libraries.begin(); lib!=m_libraries.end(); ++lib)
 		{
 			auto functions = (*lib)->getFunctions();
-			QWORD t = 0;
+			uint64_t t = 0;
 			for (auto func=functions->begin(); func!=functions->end(); ++func)
 			{
-				f.write((char*) &(*func).INT, sizeof(QWORD));
+				f.write((char*) &(*func).INT, sizeof(uint64_t));
 			}
 			
-			f.write((char*) &t, sizeof(QWORD));
+			f.write((char*) &t, sizeof(uint64_t));
 			
 			for (auto func=functions->begin(); func!=functions->end(); ++func)
 			{
-				f.write((char*) &(*func).IAT, sizeof(QWORD));
+				f.write((char*) &(*func).IAT, sizeof(uint64_t));
 			}
 			
-			f.write((char*)&t, sizeof(QWORD));
+			f.write((char*)&t, sizeof(uint64_t));
 			
 			for (auto func=functions->begin(); func!=functions->end(); ++func)
 			{
-				f.write( (*func).func.data, ALIGN_UP( (strlen((*func).func.name) + 1 + sizeof(WORD)), 4));
+				f.write( (*func).func.data, ALIGN_UP( (strlen((*func).func.name) + 1 + sizeof(uint16_t)), 4));
 			}
 		}
 		

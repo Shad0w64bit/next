@@ -1,6 +1,10 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
+#ifdef __unix__
+#include <stdint.h>
+#endif
+
 class Data
 {
 public:
@@ -41,12 +45,12 @@ public:
 	
 	int offset() { return m_offset; }
 	void setOffset(int offset) { m_offset = offset; }
-	QWORD vaOffset() {		
+	uint64_t vaOffset() {		
 		return m_va + m_offset;
 	}
 	
 	int size() { return m_size; }
-	void setVA(QWORD va) { m_va = va; }
+	void setVA(uint64_t va) { m_va = va; }
 
 private:
 	Type m_type;
@@ -54,7 +58,7 @@ private:
 	char* m_value;
 	
 	int m_offset;
-	QWORD m_va;
+	uint64_t m_va;
 	int m_size;
 };
 

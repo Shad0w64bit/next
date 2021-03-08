@@ -2,7 +2,7 @@
 #define __DATA_SECTION_H__
 
 #include "section.h"
-#include "..\core\data.h"
+#include "../core/data.h"
 
 class DataSection: public Section
 {

@@ -1,20 +1,20 @@
 #ifndef __COMMAND_H__
 #define __COMMAND_H__
 
-#include "..\asm\asmType.h"
-#include "..\asm\asmTemplate.h"
+#include "../asm/asmType.h"
+#include "../asm/asmTemplate.h"
 
-#include "..\asm\asmMov.h"
-#include "..\asm\asmPMov.h"
-#include "..\asm\asmAdd.h"
-#include "..\asm\asmSub.h"
-#include "..\asm\asmCall.h"
-#include "..\asm\asmCallPtr.h"
-#include "..\asm\asmNop.h"
-#include "..\asm\asmPush.h"
-#include "..\asm\asmPop.h"
-#include "..\asm\asmRet.h"
-#include "..\asm\asmLea.h"
+#include "../asm/asmMov.h"
+#include "../asm/asmPMov.h"
+#include "../asm/asmAdd.h"
+#include "../asm/asmSub.h"
+#include "../asm/asmCall.h"
+#include "../asm/asmCallPtr.h"
+#include "../asm/asmNop.h"
+#include "../asm/asmPush.h"
+#include "../asm/asmPop.h"
+#include "../asm/asmRet.h"
+#include "../asm/asmLea.h"
 
 
 class AsmCommand

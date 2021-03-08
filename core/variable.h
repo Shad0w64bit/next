@@ -1,7 +1,11 @@
 #ifndef __VARIABLE_H__
 #define __VARIABLE_H__
 
-#include "windows.h"
+#ifdef __unix__
+
+#elif _WIN32
+#include <windows.h>
+#endif
 #include "typedef.h"
 
 class Variable
@@ -53,7 +57,7 @@ public:
 		
 		m_init = true;
 //		if (m_data == nullptr) std::cout << "ALERT!!!!";
-		std::cout << (int)data << std::endl;
+//		std::cout << (int) data << std::endl;
 		memcpy(m_data, data, m_type->size);
 	}
 	
